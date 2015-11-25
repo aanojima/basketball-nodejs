@@ -7,7 +7,8 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court;
-var step = 0.02;
+var step = 0.022; // PATRAMETER
+var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 
 init();
 animate();
@@ -44,8 +45,8 @@ function init()
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
 	
 	// LIGHT
-	var light = new THREE.PointLight(0xffffff);
-	light.position.set(100,250,100);
+	var light = new THREE.DirectionalLight(0xffffff);
+	light.position.set(0,0,0);
 	scene.add(light);
 	
 	// FLOOR
@@ -86,38 +87,66 @@ function update()
 
 function render() 
 {
-	// basketball.rotation.x += 0.01;
-	// basketball.rotation.z += 0.05;
-	// basketball.position.y -= 1;
-	var F = basketball.evalF();
-	dPosition = F[0];
-	dVelocity = F[1];
-	dPosition.multiplyScalar(step);
-	dVelocity.multiplyScalar(step);
-
-	// Euler Step)
-	basketball.addPosition(dPosition);
-	basketball.addVelocity(dVelocity);
-	basketball.spin(step);
-
-	// Check for Collision
+	// Court-Basketball Forces
 	var courtCollision = court.hasCollision(basketball);
-
 	if (courtCollision){
-		// "FIX" Basketball Position
-		basketball.setY(2 * basketball.getRadius() - 0.15 + court.getOffset());
+		// Add a Normal Force
+		var courtNormal = court.getNormalForce(basketball.getMass());
+		basketball.addNormal("court", courtNormal);
 
-		var initialVelocity = basketball.getVelocity();
-		var bounceVelocity = court.getBounceVector(initialVelocity);
-
-		var rotationScale = 0.25 / basketball.getRadius();
-		basketball.setAngularVelocity(rotationScale * bounceVelocity.z, 0, -1 * rotationScale * bounceVelocity.x);
-		basketball.setVelocity(bounceVelocity);
+		// Add a Friction Force
+		var courtFriction = court.getFrictionForce(courtNormal, basketball.getVelocity());
+		basketball.addFriction("court", courtFriction);
+		
+	} else {
+		basketball.removeNormal("court");
+		basketball.removeFriction("court");
 	}
 
+	// Evaluate Derivatives
+	var F = basketball.evalF();
+	var velocity = F[0];
+	var acceleration = F[1];
+	var dPosition = velocity.clone().multiplyScalar(step);
+	var dVelocity = acceleration.clone().multiplyScalar(step);
+
+	// Euler Step
+	var position = basketball.getPosition();
+	var velocity = basketball.getVelocity();
+
+	basketball.addPosition(dPosition);
+	basketball.addVelocity(dVelocity);
+
+	courtCollision = court.hasCollision(basketball);
+	var finalVelocity;
+	if (courtCollision){
+		basketball.setCourtCollision(courtCollision);
+
+		// "FIX" Basketball Position
+		basketball.setY(2 * basketball.getRadius() + 0.0 + court.getOffset());
+
+		// Bounce off the court
+		var initialVelocity = basketball.getVelocity();
+		finalVelocity = court.getBounceVector(initialVelocity);
+		// TODO (some kind of threshold: if less than certain velocity just set to zero)
+		if (finalVelocity.y <= BOUNCE_THRESHOLD){
+			finalVelocity = new THREE.Vector3();
+		}
+
+		
+		basketball.setVelocity(finalVelocity);
+		
+		// Spin off the court
+		// TODO: Static Friction
+		var rotationScale = 0.25 / basketball.getRadius();
+		basketball.setAngularVelocity(-1 * rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
+		
+		basketball.addFriction()
+	} else {
+		finalVelocity = velocity;
+	}
+
+	basketball.spin(step);
+
 	renderer.render(scene, camera);
-}
-
-function hasCollision(court, basketball){
-
 }

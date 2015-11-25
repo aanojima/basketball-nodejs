@@ -1,6 +1,6 @@
 function Basketball(){
 
-	var _mass, _radius, _state, _mesh, _angularVelocity;
+	var _mass, _radius, _state, _mesh, _angularVelocity, _courtCollision, _normalHash, _frictionHash;
 
 	this.getMass = function(){
 		return _mass;
@@ -56,19 +56,12 @@ function Basketball(){
 	}
 
 	this.spin = function(step){
-		// _mesh.rotation.z -= _angularVelocity.z * step;
-		// _mesh.rotation.x += _angularVelocity.x * step;
-
+		// TODO: Backwards for (-X -Z) and (+X +Z)
 		var axis = new THREE.Vector3(_angularVelocity.x, 0, _angularVelocity.z);
-		var angle = Math.PI / 2;
-
-		var quaternion = new THREE.Quaternion();
-		quaternion.setFromAxisAngle( new THREE.Vector3( 1/Math.sqrt(2), 0, -1/Math.sqrt(2) ), Math.PI / 2 );
-
-		var vector = new THREE.Vector3( 1, 0, 0 );
-		vector.applyQuaternion( quaternion );
-
-		// _mesh.rotation = _mesh.rotateOnAxis(axis, angle);
+		var angularSpeed = _state[1].length() / (_radius * _radius);
+		var sign = Math.sign(_angularVelocity.x * _angularVelocity.z);
+		var angle = sign * angularSpeed * step;
+		this.rotateAroundWorldAxis(axis, angle);
 	}
 
 	this.getMesh = function(){
@@ -76,19 +69,37 @@ function Basketball(){
 	}
 
 	this.evalF = function(){
+		var netForce = new THREE.Vector3();
+
 		// Gravity
 		var gravityDirection = new THREE.Vector3(0, -1.0, 0);
 		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * _mass);
+		netForce.add(gravity);
 
 		// Drag
 
 		// External Forces
-		// If 
+		// Friction
+		for (var i in _normalHash){
+			var normal = _normalHash[i];
+			if (!i || !normal){
+				continue;
+			}
+			netForce.add(normal);
+		}
+		
+		// Friction
+		for (var i in _frictionHash){
+			var friction = _frictionHash[i];
+			if (!i || !friction){
+				continue;
+			}
+			netForce.add(friction);
+		}
 
 		// Net Force
-		var netForce = gravity;
 		var v = _state[1].clone();
-		var a = netForce.divideScalar(_mass);
+		var a = netForce.clone().divideScalar(_mass);
 
 		var F = [v, a];
 		return F;
@@ -97,18 +108,61 @@ function Basketball(){
 	function init(){
 		_mass = 0.625;
 		_radius = INCHES(4.775);
-		_state = [new THREE.Vector3(FEET(0), FEET(10), 0), new THREE.Vector3(FEET(2), FEET(0), FEET(0))];
+		_state = [
+			new THREE.Vector3(FEET(5), FEET(20), FEET(5)),
+			new THREE.Vector3(FEET(-10), FEET(5), FEET(15))
+		];
 
 		var geometry = new THREE.SphereGeometry(INCHES(9.55), 32, 32);
 		var material = new THREE.MeshBasicMaterial({ 
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);
-		_mesh.rotation.y = Math.PI / 4;
-		// _mesh.rotation.x = Math.PI / 2;
-		// _mesh.rotation.z = Math.PI / -2;
 		_mesh.position = _state[0];
+		_mesh.rotation.y = Math.PI/4;
 		_angularVelocity = new THREE.Vector3();
+		_normalHash = {};
+		_frictionHash = {};
+	}
+
+	this.rotateAroundWorldAxis = function(axis, radians){
+		var rotWorldMatrix = new THREE.Matrix4();
+		rotWorldMatrix.makeRotationAxis(axis.normalize(), radians);
+		rotWorldMatrix.multiply(_mesh.matrix);
+		_mesh.matrix = rotWorldMatrix;
+		_mesh.rotation.setFromRotationMatrix(_mesh.matrix);
+	}
+
+	this.setCourtCollision = function(collision){
+		_courtCollision = collision;
+	}
+
+	this.addNormal = function(objectName, force){
+		_normalHash[objectName] = force;
+	}
+
+	this.removeNormal = function(objectName, force){
+		if (_normalHash.hasOwnProperty(objectName)){
+			_normalHash[objectName] = undefined;
+		}
+	}
+
+	this.addFriction = function(objectName, force){
+		_frictionHash[objectName] = force;
+	}
+
+	this.removeFriction = function(objectName){
+		if (_frictionHash.hasOwnProperty(objectName)){
+			_frictionHash[objectName] = undefined;
+		}
+	}
+
+	this.getNormalForces = function(){
+		return _normalHash;
+	}
+
+	this.getFrictionForces = function(){
+		return _frictionHash;
 	}
 
 	init();

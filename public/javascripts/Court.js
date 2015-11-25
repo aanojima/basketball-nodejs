@@ -1,7 +1,6 @@
 function Court(){
 	
-	var _offset, _mesh, _elasticity;
-	var BOUNCE_THRESHOLD = METERS(0.5); // TODO
+	var _offset, _mesh, _elasticity, _fkCoefficient;
 
 	this.getOffset = function(){
 		return _offset;
@@ -12,7 +11,8 @@ function Court(){
 	}
 
 	this.getNormal = function(){
-		return new THREE.Vector3(0, 1.0, 0);
+		var n = new THREE.Vector3(0, 1.0, 0);
+		return n;
 	}
 
 	this.getBounceVector = function(velocity){
@@ -23,17 +23,12 @@ function Court(){
 		var R = velocity.clone()
 		var N = this.getNormal();
 		var NR = this.getNormal().dot(R);
-		var component = N.multiplyScalar(2 * NR);
+		var component = this.getNormal().multiplyScalar(2 * NR);
 		var bounce = R.sub(component);
 
 		// Loss of momentum (elasticity)
-		// bounce.multiplyScalar(_elasticity);
-		bounce.y = bounce.y * _elasticity;
-
-		// TODO (some kind of threshold: if less than certain velocity just set to zero)
-		if (Math.abs(bounce.y) < BOUNCE_THRESHOLD){
-			bounce.y = 0;
-		}
+		// bounce.y *= _elasticity;
+		bounce.multiplyScalar(_elasticity);
 		return bounce;
 	}
 
@@ -46,8 +41,16 @@ function Court(){
 
 		// P.N + D = 0
 		var temp = point.dot(this.getNormal()) - _offset;
+		return temp <= radius;
+	}
 
-		return temp < radius;
+	this.getNormalForce = function(mass){
+		return (new THREE.Vector3(0, METERS(9.8), 0)).multiplyScalar(mass);
+	}
+
+	this.getFrictionForce = function(normal, velocity){
+		// TODO: Static vs. Kinetic
+		return velocity.normalize().multiplyScalar(-1 * _fkCoefficient * normal.length());
 	}
 
 	function init(){
@@ -61,7 +64,8 @@ function Court(){
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.rotation.x = Math.PI / 2;
 		_offset = _mesh.position.y;
-		_elasticity = 0.69; // TODO: Research
+		_elasticity = 0.6; // TODO: Research
+		_fkCoefficient = 0.25;
 	}
 
 	init();
