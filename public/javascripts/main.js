@@ -139,7 +139,7 @@ function render()
 		// Spin off the court
 		// TODO: Static Friction
 		var rotationScale = 0.25 / basketball.getRadius();
-		basketball.setAngularVelocity(-1 * rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 		
 		basketball.addFriction()
 	} else {

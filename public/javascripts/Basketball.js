@@ -56,11 +56,13 @@ function Basketball(){
 	}
 
 	this.spin = function(step){
-		// TODO: Backwards for (-X -Z) and (+X +Z)
-		var axis = new THREE.Vector3(_angularVelocity.x, 0, _angularVelocity.z);
-		var angularSpeed = _state[1].length() / (_radius * _radius);
-		var sign = Math.sign(_angularVelocity.x * _angularVelocity.z);
-		var angle = sign * angularSpeed * step;
+		// +X => -Z
+		// -X => +Z
+		// +Z => -X
+		// -Z => +X
+		var axis = new THREE.Vector3(-1*_angularVelocity.z, 0, _angularVelocity.x);
+		var angularSpeed = _angularVelocity.length();
+		var angle = -1 * angularSpeed * step;
 		this.rotateAroundWorldAxis(axis, angle);
 	}
 
@@ -109,8 +111,8 @@ function Basketball(){
 		_mass = 0.625;
 		_radius = INCHES(4.775);
 		_state = [
-			new THREE.Vector3(FEET(5), FEET(20), FEET(5)),
-			new THREE.Vector3(FEET(-10), FEET(5), FEET(15))
+			new THREE.Vector3(FEET(0), FEET(20), FEET(0)),
+			new THREE.Vector3(FEET(0), FEET(5), FEET(-5))
 		];
 
 		var geometry = new THREE.SphereGeometry(INCHES(9.55), 32, 32);
@@ -119,8 +121,7 @@ function Basketball(){
 		});
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.position = _state[0];
-		_mesh.rotation.y = Math.PI/4;
-		_angularVelocity = new THREE.Vector3();
+		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / _radius);
 		_normalHash = {};
 		_frictionHash = {};
 	}
