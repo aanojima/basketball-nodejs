@@ -1,13 +1,15 @@
 function Basketball(){
 
-	var _mass, _radius, _state, _mesh, _angularVelocity, _courtCollision, _normalHash, _frictionHash;
+	const MASS = 0.625;
+	const RADIUS = INCHES(4.75);
+	var _state, _mesh, _angularVelocity, _courtCollision, _normalHash, _frictionHash;
 
 	this.getMass = function(){
-		return _mass;
+		return MASS;
 	}
 
 	this.getRadius = function(){
-		return _radius;
+		return RADIUS;
 	}
 
 	this.getState = function(){
@@ -75,7 +77,7 @@ function Basketball(){
 
 		// Gravity
 		var gravityDirection = new THREE.Vector3(0, -1.0, 0);
-		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * _mass);
+		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * MASS);
 		netForce.add(gravity);
 
 		// Drag
@@ -101,27 +103,25 @@ function Basketball(){
 
 		// Net Force
 		var v = _state[1].clone();
-		var a = netForce.clone().divideScalar(_mass);
+		var a = netForce.clone().divideScalar(MASS);
 
 		var F = [v, a];
 		return F;
 	}
 
-	function init(){
-		_mass = 0.625;
-		_radius = INCHES(4.75);
+	function init(){;
 		_state = [
 			new THREE.Vector3( FEET(0), FEET(20), FEET(0)),
 			new THREE.Vector3(FEET(0), FEET(5), FEET(0))
 		];
 
-		var geometry = new THREE.SphereGeometry(_radius, 32, 32);
+		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);
 		var material = new THREE.MeshBasicMaterial({ 
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.position = _state[0];
-		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / _radius);
+		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / RADIUS);
 		_normalHash = {};
 		_frictionHash = {};
 	}

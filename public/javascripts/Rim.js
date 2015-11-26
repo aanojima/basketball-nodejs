@@ -1,16 +1,22 @@
 function Rim(side){
 	
 	// Dimensional Constants
-	var RING_RADIUS = INCHES(9);
-	var RING_THICKNESS = INCHES(0.3125);
-	var ATTACH_WIDTH = INCHES(4);
-	var ATTACH_DEPTH = INCHES(5);
-	var ATTACH_HEIGHT = INCHES(4);
-	var ATTACH_BOTTOM_THICKNESS = INCHES(2);
-	var ATTACH_FRONT_THICKNESS = INCHES(1);
-	var SHADOW_HEIGHT = INCHES(1);
-	var R_SEGMENTS = 32;
-	var T_SEGMENTS = 64;
+	const RING_RADIUS = INCHES(9);
+	const RING_THICKNESS = INCHES(0.3125);
+
+	const ATTACH_WIDTH = INCHES(4);
+	const ATTACH_DEPTH = INCHES(6);
+	const ATTACH_HEIGHT = INCHES(4);
+
+	const ATTACH_BOTTOM_THICKNESS = INCHES(2);
+	const ATTACH_FRONT_THICKNESS = INCHES(1);
+
+	const SHADOW_HEIGHT = INCHES(1);
+
+	const DISTANCE = FEET(41) + INCHES(10) - RING_RADIUS;
+
+	const R_SEGMENTS = 32;
+	const T_SEGMENTS = 64;
 
 	// Private Member Fields
 	var _mesh;
@@ -28,14 +34,11 @@ function Rim(side){
 	}
 
 	function init(side){
-
-		
-
 		var sideSign;
 		if (side === "HOME"){
-			sideSign = 1;
-		} else if (side == "AWAY"){
 			sideSign = -1;
+		} else if (side == "AWAY"){
+			sideSign = 1;
 		} else {
 			return;
 		}
@@ -108,8 +111,8 @@ function Rim(side){
 		_mesh = new THREE.Mesh(geometry, material);
 
 		_mesh.position.y = FEET(10);
-		_mesh.position.x = FEET(sideSign * -41); // DEPENDS ON SIDE
-		_mesh.rotation.z = sideSign * Math.PI / 2; // Depends on side
+		_mesh.position.x = sideSign * DISTANCE; // DEPENDS ON SIDE
+		_mesh.rotation.z = sideSign * Math.PI / -2; // Depends on side
 		_mesh.rotation.x = Math.PI / -2;
 	}
 

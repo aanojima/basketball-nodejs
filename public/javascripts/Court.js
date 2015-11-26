@@ -1,6 +1,9 @@
 function Court(){
 	
-	var _offset, _mesh, _elasticity, _fkCoefficient;
+	const ELASTICITY = 0.6;
+	const FK_COEFFICIENT = 0.25;
+	
+	var _offset, _mesh;
 
 	this.getOffset = function(){
 		return _offset;
@@ -27,7 +30,7 @@ function Court(){
 		var bounce = R.sub(component);
 
 		// Loss of momentum (elasticity)
-		bounce.multiplyScalar(_elasticity);
+		bounce.multiplyScalar(ELASTICITY);
 		return bounce;
 	}
 
@@ -49,7 +52,7 @@ function Court(){
 
 	this.getFrictionForce = function(normal, velocity){
 		// TODO: Static vs. Kinetic
-		return velocity.normalize().multiplyScalar(-1 * _fkCoefficient * normal.length());
+		return velocity.normalize().multiplyScalar(-1 * FK_COEFFICIENT * normal.length());
 	}
 
 	function init(){
@@ -63,8 +66,7 @@ function Court(){
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.rotation.x = Math.PI / 2;
 		_offset = _mesh.position.y;
-		_elasticity = 0.6; // TODO: Research
-		_fkCoefficient = 0.25;
+		
 	}
 
 	init();
