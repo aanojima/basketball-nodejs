@@ -111,7 +111,7 @@ function Basketball(){
 		_mass = 0.625;
 		_radius = INCHES(4.75);
 		_state = [
-			new THREE.Vector3( FEET(41), FEET(20), FEET(0)),
+			new THREE.Vector3( FEET(0), FEET(20), FEET(0)),
 			new THREE.Vector3(FEET(0), FEET(5), FEET(0))
 		];
 

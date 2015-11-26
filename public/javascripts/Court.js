@@ -27,7 +27,6 @@ function Court(){
 		var bounce = R.sub(component);
 
 		// Loss of momentum (elasticity)
-		// bounce.y *= _elasticity;
 		bounce.multiplyScalar(_elasticity);
 		return bounce;
 	}
@@ -41,7 +40,7 @@ function Court(){
 
 		// P.N + D = 0
 		var temp = point.dot(this.getNormal()) - _offset;
-		return temp <= radius;
+		return temp <= 0;
 	}
 
 	this.getNormalForce = function(mass){

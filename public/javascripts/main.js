@@ -135,7 +135,7 @@ function render()
 		basketball.setCourtCollision(courtCollision);
 
 		// "FIX" Basketball Position
-		basketball.setY(2 * basketball.getRadius() + 0.0 + court.getOffset());
+		basketball.setY(basketball.getRadius() - 0 + court.getOffset());
 
 		// Bounce off the court
 		var initialVelocity = basketball.getVelocity();
