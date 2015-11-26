@@ -52,6 +52,18 @@ function init()
 	// FLOOR
 	court = new Court();
 	scene.add(court.getMesh());
+
+	// Backboard
+	homeBackboard = new Backboard("HOME");
+	scene.add(homeBackboard.getMesh());
+	awayBackboard = new Backboard("AWAY");
+	scene.add(awayBackboard.getMesh());
+
+	// Rim
+	homeRim = new Rim("HOME");
+	scene.add(homeRim.getMesh());
+	awayRim = new Rim("AWAY");
+	scene.add(awayRim.getMesh());
 	
 	// SKYBOX
 	// var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );

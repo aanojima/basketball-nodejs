@@ -109,13 +109,13 @@ function Basketball(){
 
 	function init(){
 		_mass = 0.625;
-		_radius = INCHES(4.775);
+		_radius = INCHES(4.75);
 		_state = [
-			new THREE.Vector3(FEET(0), FEET(20), FEET(0)),
-			new THREE.Vector3(FEET(0), FEET(5), FEET(-5))
+			new THREE.Vector3( FEET(41), FEET(20), FEET(0)),
+			new THREE.Vector3(FEET(0), FEET(5), FEET(0))
 		];
 
-		var geometry = new THREE.SphereGeometry(INCHES(9.55), 32, 32);
+		var geometry = new THREE.SphereGeometry(_radius, 32, 32);
 		var material = new THREE.MeshBasicMaterial({ 
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
