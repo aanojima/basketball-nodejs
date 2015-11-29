@@ -8,7 +8,7 @@ function Net(side){
 	const KNOT_LAYERS = 8; // plus ones on top and ones on bottom
 	const KNOTS_PER_LAYER = 12;
 	const ANGLE_STEP = (2.0 * Math.PI / KNOTS_PER_LAYER);
-	const DISTANCE = FEET(41) + INCHES(10) - TOP_RADIUS;
+	const DISTANCE = FEET(42) - INCHES(4) - TOP_RADIUS; // Backboard Depth
 
 	// TODO: See Object3D Group (group.add)
 	var _knotMeshes, _lineMeshes, _group;

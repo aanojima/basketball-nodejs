@@ -3,17 +3,42 @@ function Backboard(side){
 	const WIDTH = INCHES(72);
 	const HEIGHT = INCHES(42);
 	const DEPTH = INCHES(4);
-	const DISTANCE = FEET(42) + INCHES(4);
-	const GROUND_DISTANCE = FEET(10) + 0.5*HEIGHT - INCHES(5);
+	const DISTANCE = FEET(42) + DEPTH;
+	const GROUND_DISTANCE = FEET(10) + 0.5*HEIGHT - INCHES(5); // ATTACH_HEIGHT + INCHES(1)
 	const ELASTICITY = 0.9;
 	const FK_COEFFICIENT = 0.25; // TODO: Research
 
-	const FRONT = 0;
-	const BACK = 1;
-	const TOP = 2;
+	// FACES
+	const FRONT = 1;
+	const BACK = 2;
 	const BOTTOM = 3;
-	const LEFT = 4;
-	const RIGHT = 5;
+	const TOP = 4;
+	const LEFT = 5;
+	const RIGHT = 6;
+
+	// EDGES
+	const FRONTBOTTOM = 13;
+	const FRONTTOP = 14;
+	const FRONTLEFT = 15;
+	const FRONTRIGHT = 16;
+	const BACKBOTTOM = 23;
+	const BACKTOP = 24;
+	const BACKLEFT = 25;
+	const BACKRIGHT = 26;
+	const BOTTOMLEFT = 35;
+	const BOTTOMRIGHT = 36;
+	const TOPLEFT = 45;
+	const TOPTOMRIGHT = 46;
+
+	// CORNERS
+	const FRONTBOTTOMLEFT = 135;
+	const FRONTBOTTOMRIGHT = 136;
+	const FRONTTOPLEFT = 135;
+	const FRONTTOPRIGHT = 136;
+	const BACKBOTTOMLEFT = 235;
+	const BACKBOTTOMRIGHT = 236;
+	const BACKTOPLEFT = 245;
+	const BACKTOPRIGHT = 246;
 
 	var _mesh, _sideSign;
 
@@ -26,16 +51,18 @@ function Backboard(side){
 	}
 
 	this.getNormals = function(){
-		// Front Normal and Back Normal
-		var normals = [
-			new THREE.Vector3(_sideSign * -1.0, 0, 0),
-			new THREE.Vector3(_sideSign * 1.0, 0, 0),
-			new THREE.Vector3(0, 1.0, 0),
-			new THREE.Vector3(0, -1.0, 0),
-			new THREE.Vector3(0, 0, _sideSign * -1.0),
-			new THREE.Vector3(0, 0, _sideSign * 1.0)
-		];
+		var normals = {};
+		normals[FRONT] = new THREE.Vector3(_sideSign * -1.0, 0, 0);
+		normals[BACK] = new THREE.Vector3(_sideSign * 1.0, 0, 0);
+		normals[BOTTOM] = new THREE.Vector3(0, -1.0, 0);
+		normals[TOP] = new THREE.Vector3(0, 1.0, 0);
+		normals[LEFT] = new THREE.Vector3(0, 0, _sideSign * -1.0);
+		normals[RIGHT] = new THREE.Vector3(0, 0, _sideSign * 1.0);
 		return normals;
+	}
+
+	this.getBoundingObjects = function(){
+		// var body = 
 	}
 
 	this.fixCollisionPosition = function(basketball, step, collisions){
@@ -252,6 +279,14 @@ function Backboard(side){
 		bb.min.add(_mesh.position.clone());
 		bb.max.add(_mesh.position.clone());
 		return bb;
+	}
+
+	this.getFaceBox = function(face){
+		var normals = this.getNormals();
+		switch (face){
+			case FRONT:
+
+		}
 	}
 
 	function init(side){

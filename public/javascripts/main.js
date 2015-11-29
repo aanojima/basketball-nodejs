@@ -1,12 +1,13 @@
 
 // MAIN
+'use strict';
 
 // standard global variables
 var container, scene, camera, renderer, controls;
 var keyboard = new KeyboardState();
 
 // custom global variables
-var basketball, court;
+var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet;
 var step = 0.022; // PATRAMETER
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 

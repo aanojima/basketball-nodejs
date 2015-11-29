@@ -13,7 +13,7 @@ function Rim(side){
 
 	const SHADOW_HEIGHT = INCHES(1);
 
-	const DISTANCE = FEET(41) + INCHES(10) - RING_RADIUS;
+	const DISTANCE = FEET(42) - INCHES(4) - RING_RADIUS; // Backboard Depth
 
 	const R_SEGMENTS = 32;
 	const T_SEGMENTS = 64;
@@ -31,6 +31,30 @@ function Rim(side){
 
 	function faceOffset(end,a,b,c){
 		return new THREE.Face3(end + a, end + b, end + c);
+	}
+
+	this.hasCollision = function(basketball, hit){
+		// TODO
+		var bbox = this.getBoundingBox();
+		if (!bbox.intersection(basketball.getBoundingBox())){
+			return false;
+		}
+	}
+
+	this.getBoundingBox = function(){
+		_mesh.geometry.computeBoundingBox();
+		var bb = _mesh.geometry.boundingBox.clone();
+		var xMin = bb.min.x;
+		var zMin = bb.min.z;
+		var xMax = bb.max.x;
+		var zMax = bb.max.z;
+		bb.min.x = zMin;
+		bb.min.z = xMin;
+		bb.max.x = zMax;
+		bb.max.z = xMax;
+		bb.min.add(_mesh.position.clone());
+		bb.max.add(_mesh.position.clone());
+		return bb;	
 	}
 
 	function init(side){
