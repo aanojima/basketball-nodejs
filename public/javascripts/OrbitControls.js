@@ -233,7 +233,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 				state = STATE.PAN;
 		}
 		
-		console.log(state);
+
 		if ( state === STATE.ROTATE ) {
 
 			//state = STATE.ROTATE;

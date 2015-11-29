@@ -24,7 +24,7 @@ function init()
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	scene.add(camera);
-	camera.position.set(0,150,400);
+	camera.position.set(FEET(20),FEET(10),FEET(10));
 	camera.lookAt(scene.position);	
 	
 	// RENDERER
@@ -43,6 +43,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
+	controls.center = new THREE.Vector3(FEET(40), FEET(8), FEET(0));
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
@@ -64,6 +65,36 @@ function init()
 	scene.add(homeRim.getMesh());
 	awayRim = new Rim("AWAY");
 	scene.add(awayRim.getMesh());
+
+	// Net
+	homeNet = new Net("HOME");
+	var knotMeshes = homeNet.getKnots();
+	for (var i in knotMeshes){
+		var mesh = knotMeshes[i];
+		scene.add(mesh);
+	}
+	var lineMeshes = homeNet.getLines();
+	for (var i in lineMeshes){
+		var line = lineMeshes[i];
+		var mesh = lineMeshes[i];
+		scene.add(mesh);
+	}
+
+	awayNet = new Net("AWAY");
+	scene.add(awayNet.getMesh());
+	// var knotMeshes = awayNet.getKnots();
+	// for (var i in knotMeshes){
+	// 	var mesh = knotMeshes[i];
+	// 	scene.add(mesh);
+	// }
+	// var lineMeshes = awayNet.getLines();
+	// for (var i in lineMeshes){
+	// 	var line = lineMeshes[i];
+	// 	var mesh = lineMeshes[i];
+	// 	scene.add(mesh);
+	// }
+
+
 	
 	// SKYBOX
 	// var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
@@ -76,7 +107,6 @@ function init()
 	////////////
 	basketball = new Basketball();
 	scene.add(basketball.getMesh());
-	
 }
 
 function animate() 
@@ -99,8 +129,11 @@ function update()
 
 function render() 
 {
-	// Court-Basketball Forces
+
+	// Collision-Detection
 	var courtCollision = court.hasCollision(basketball);
+
+	// Court-Basketball Forces
 	if (courtCollision){
 		// Add a Normal Force
 		var courtNormal = court.getNormalForce(basketball.getMass());
@@ -129,8 +162,11 @@ function render()
 	basketball.addPosition(dPosition);
 	basketball.addVelocity(dVelocity);
 
+	var awayHit = {};
+	var awayBackboardCollision = awayBackboard.hasCollision(basketball, awayHit);
+	var homeHit = {};
+	var homeBackboardCollision = homeBackboard.hasCollision(basketball, homeHit);
 	courtCollision = court.hasCollision(basketball);
-	var finalVelocity;
 	if (courtCollision){
 		basketball.setCourtCollision(courtCollision);
 
@@ -139,8 +175,8 @@ function render()
 
 		// Bounce off the court
 		var initialVelocity = basketball.getVelocity();
-		finalVelocity = court.getBounceVector(initialVelocity);
-		// TODO (some kind of threshold: if less than certain velocity just set to zero)
+		var finalVelocity = court.getBounceVector(initialVelocity);
+		// Threshold: if less than certain velocity just set to zero
 		if (finalVelocity.y <= BOUNCE_THRESHOLD){
 			finalVelocity = new THREE.Vector3();
 		}
@@ -154,8 +190,37 @@ function render()
 		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 		
 		basketball.addFriction()
-	} else {
-		finalVelocity = velocity;
+	}
+	else if (awayBackboardCollision){
+
+		// TODO: "FIX" Basketball position
+		awayBackboard.fixCollisionPosition(basketball, step, awayHit.points);
+
+		// Bounce off the backboard
+		// TODO: Fix for edges and corners
+		var initialVelocity = basketball.getVelocity();
+		var finalVelocity = awayBackboard.getBounceVector(initialVelocity, awayHit.points);
+		basketball.setVelocity(finalVelocity);
+
+		
+
+		// Spin off the backboard
+		rotationScale = 0.25 / basketball.getRadius();
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
+	}
+	else if (homeBackboardCollision){
+		// TODO: "FIX" Basketball position
+		homeBackboard.fixCollisionPosition(basketball, homeHit.points);
+
+		// Bounce off the backboard
+		// TODO: Fix for edges and corners
+		var initialVelocity = basketball.getVelocity();
+		var finalVelocity = homeBackboard.getBounceVector(initialVelocity, homeHit.points);
+		basketball.setVelocity(finalVelocity);
+
+		// Spin off the backboard
+		rotationScale = 0.25 / basketball.getRadius();
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 	}
 
 	basketball.spin(step);

@@ -14,8 +14,7 @@ function Court(){
 	}
 
 	this.getNormal = function(){
-		var n = new THREE.Vector3(0, 1.0, 0);
-		return n;
+		return new THREE.Vector3(0, 1.0, 0);
 	}
 
 	this.getBounceVector = function(velocity){
@@ -34,12 +33,13 @@ function Court(){
 		return bounce;
 	}
 
+	// TODO: pass hit to help better fix position/velocity during collision
 	this.hasCollision = function(basketball){
 		var radius = basketball.getRadius();
-		var top = basketball.getPosition();
+		var center = basketball.getPosition();
 
 		// Point is C - N
-		var point = top.sub(this.getNormal().multiplyScalar(radius));
+		var point = center.sub(this.getNormal().multiplyScalar(radius));
 
 		// P.N + D = 0
 		var temp = point.dot(this.getNormal()) - _offset;

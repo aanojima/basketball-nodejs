@@ -12,6 +12,7 @@ function Basketball(){
 		return RADIUS;
 	}
 
+	// TODO: save old state to have better fixing
 	this.getState = function(){
 		var result = [_state[0].clone(), _state[1].clone()];
 		return result;
@@ -22,15 +23,24 @@ function Basketball(){
 	}
 
 	this.setPosition = function(newPosition){
-		_state[0] = newPosition.clone();
+		_state[0].x = newPosition.x;
+		_state[0].y = newPosition.y;
+		_state[0].z = newPosition.z;
 	}
 
 	this.setY = function(Y){
 		_state[0].y = Y;
 	}
 
-	this.addPosition = function(vec){
-		_state[0].add(vec);
+	this.addPosition = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			_state[0].add(a);	
+		}
+		else {
+			_state[0].x += a;
+			_state[0].y += b;
+			_state[0].z += c;
+		}
 	}
 
 	this.getVelocity = function(){
@@ -38,7 +48,9 @@ function Basketball(){
 	}
 
 	this.setVelocity = function(newVelocity){
-		_state[1] = newVelocity.clone();
+		_state[1].x = newVelocity.x;
+		_state[1].y = newVelocity.y;
+		_state[1].z = newVelocity.z;
 	}
 
 	this.addVelocity = function(vec){
@@ -111,8 +123,8 @@ function Basketball(){
 
 	function init(){;
 		_state = [
-			new THREE.Vector3( FEET(0), FEET(20), FEET(0)),
-			new THREE.Vector3(FEET(0), FEET(5), FEET(0))
+			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
+			new THREE.Vector3(FEET(15), FEET(12), FEET(-10))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);
@@ -164,6 +176,11 @@ function Basketball(){
 
 	this.getFrictionForces = function(){
 		return _frictionHash;
+	}
+
+	this.getBoundingBox = function(){
+		_mesh.geometry.computeBoundingBox();
+		return _mesh.geometry.boundingBox.clone();
 	}
 
 	init();
