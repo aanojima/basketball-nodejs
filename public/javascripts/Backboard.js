@@ -5,10 +5,11 @@ function Backboard(side){
 	const DEPTH = INCHES(4);
 	const DISTANCE = FEET(42) + DEPTH;
 	const GROUND_DISTANCE = FEET(10) + 0.5*HEIGHT - INCHES(5); // ATTACH_HEIGHT + INCHES(1)
-	const ELASTICITY = 0.7;
+	const ELASTICITY = 0.8;
 	const FK_COEFFICIENT = 0.25; // TODO: Research
 
 	// FACES
+	const NONE = 0;
 	const FRONT = 1;
 	const BACK = 2;
 	const BOTTOM = 3;
@@ -17,18 +18,18 @@ function Backboard(side){
 	const RIGHT = 6;
 
 	// EDGES
-	const FRONTBOTTOM = 13;
-	const FRONTTOP = 14;
-	const FRONTLEFT = 15;
-	const FRONTRIGHT = 16;
-	const BACKBOTTOM = 23;
-	const BACKTOP = 24;
-	const BACKLEFT = 25;
-	const BACKRIGHT = 26;
-	const BOTTOMLEFT = 35;
-	const BOTTOMRIGHT = 36;
-	const TOPLEFT = 45;
-	const TOPTOMRIGHT = 46;
+	const FRONTBOTTOM = 130;
+	const FRONTTOP = 140;
+	const FRONTLEFT = 105;
+	const FRONTRIGHT = 106;
+	const BACKBOTTOM = 230;
+	const BACKTOP = 240;
+	const BACKLEFT = 205;
+	const BACKRIGHT = 206;
+	const BOTTOMLEFT = 035;
+	const BOTTOMRIGHT = 036;
+	const TOPLEFT = 045;
+	const TOPTOMRIGHT = 046;
 
 	// CORNERS
 	const FRONTBOTTOMLEFT = 135;
@@ -61,27 +62,191 @@ function Backboard(side){
 		return normals;
 	}
 
-	this.getBoundingObjects = function(){
-		// var body = 
+	this.getEdgeLineSegment = function(faces){
+		var bbox = this.getBoundingBox();
+		var pointA = bbox.min.clone();
+		var pointB = bbox.max.clone();
+		var dimensions = [
+			side === "AWAY" ? bbox.min.x : bbox.max.x,
+			side === "AWAY" ? bbox.max.x : bbox.min.x,
+			bbox.min.y,
+			bbox.max.y,
+			side === "AWAY" ? bbox.min.z : bbox.max.z,
+			side === "AWAY" ? bbox.max.z : bbox.min.z
+		];
+		for (var i in faces){
+			var face = parseInt(faces[i]);
+			var value = dimensions[face - 1];
+			if (face === FRONT || face === BACK){
+				pointA.x = value;
+				pointB.x = value;
+			}
+			else if (face === BOTTOM || face === TOP){
+				pointA.y = value;
+				pointB.y = value;
+			}
+			else if (face === LEFT || face === RIGHT){
+				pointA.z = value;
+				pointB.z = value;
+			}
+		}
+		return [pointA, pointB];
 	}
 
-	this.fixCollisionPosition = function(basketball, step, collisions){
+	this.getEdgePoint = function(faces, center){
+		// Point on the center of specified edge
+		var edgePoint = this.getPoint(faces);
+		// Use center to get point on edge
+		var points = this.getEdgeLineSegment(faces);
+		var origin = points[0];
+		var direction = points[1].clone().sub(points[0].clone()).normalize();
+		var ray = new THREE.Ray(origin, direction);
+		return ray.closestPointToPoint(center);
+	}
+
+	this.getPoint = function(faces){
 		var bbox = this.getBoundingBox();
-		var radius = basketball.getRadius();
-		var position = new THREE.Vector3();
-		for (var face in collisions){
+		var corner = _mesh.position.clone();
+		for (var i in faces){
+			var face = parseInt(faces[i]);
 			switch (face){
 				case FRONT:
-					position.x = bbox.min.x - radius;
+					var frontX;
+					if (side === "HOME"){
+						frontX = bbox.max.x;
+					}
+					else if (side === "AWAY"){
+						frontX = bbox.min.x;
+					}
+					corner.x = frontX;
 					break;
 				case BACK:
-					position.x = bbox.max.x + radius;
-					break;
-				case TOP:
-					position.y = bbox.max.y + radius;
+					var backX;
+					if (side === "HOME"){
+						backX = bbox.min.x;
+					}
+					else if (side === "AWAY"){
+						backX = bbox.max.x;
+					}
+					corner.x = backX;
 					break;
 				case BOTTOM:
-					position.y = bbox.min.y - radius;
+					corner.y = bbox.min.y;
+					break;
+				case TOP:
+					corner.y = bbox.max.y;
+					break;
+				case LEFT:
+					var leftZ;
+					if (side === "HOME"){
+						leftZ = bbox.max.z;
+					}
+					else if (side === "AWAY"){
+						leftZ = bbox.min.z;
+					}
+					corner.z = leftZ;
+					break;
+				case RIGHT:
+					var rightZ;
+					if (side === "HOME"){
+						rightZ = bbox.min.z;
+					}
+					else if (side === "AWAY"){
+						rightZ = bbox.max.z;
+					}
+					corner.z = rightZ;
+					break;
+				default:
+					break;
+			}
+		}
+		return corner;
+	}
+
+	// TODO: Predict if it will hit in the next time-step
+	this.fixCollisionPosition = function(basketball, step, hit){
+		// TODO: NEED TO FIX
+		var bbox = this.getBoundingBox();
+		var radius = basketball.getRadius();
+		var center = basketball.getPosition();
+		var direction = basketball.getVelocity().normalize();
+		var faces = Object.keys(hit.points);
+		var boxPoint, forwardPoint;
+		if (hit.type !== "face"){
+			// GET Box Point
+			if (hit.type === "corner"){
+				boxPoint = this.getPoint(faces);	
+			}
+			else if (hit.type === "edge"){
+				boxPoint = this.getEdgePoint(faces, center);
+			}
+
+			// Find Forward Point
+			var rayStart = boxPoint.clone().add(direction.clone().multiplyScalar(2*radius));
+			var relativeStart = rayStart.clone().sub(center.clone());
+			var rayDirection = direction.clone().multiplyScalar(-1);
+			var ray = new THREE.Ray(rayStart, rayDirection);
+			var a = rayDirection.lengthSq();
+			var b = 2 * rayDirection.dot(relativeStart);
+			var c = relativeStart.lengthSq() - Math.pow(radius, 2);
+			var discriminant = Math.pow(b, 2) - (4 * a*c);
+			var t = Infinity;
+			if (discriminant > 0){
+				var tempT = (-1.0*b - Math.sqrt(discriminant)) / (2.0*a);
+				if (tempT >= 0 && tempT < t){
+					t = tempT;
+					var normalNew = relativeStart.clone().add(rayDirection.clone().multiplyScalar(t)).sub(center).normalize();
+				}
+				tempT = (-1.0*b + Math.sqrt(discriminant)) / (2.0*a);
+				if (t >= 0 && tempT < t){
+					t = tempT;
+					var normalNew = relativeStart.clone().add(rayDirection.clone().multiplyScalar(t)).sub(center).normalize();
+				}
+			}
+			if (t === Infinity){
+				basketball.setVelocity(0,0,0);
+				return;
+			}
+			forwardPoint = ray.at(t);
+		}
+		else {
+			var ray = new THREE.Ray(center.clone(), direction.clone());
+			var facePoint = ray.intersectBox(bbox);
+			var forwardPoint = center.clone().add(direction.clone().multiplyScalar(radius));
+			var reverseDisplacement = facePoint.clone().sub(forwardPoint.clone());
+			basketball.addPosition(reverseDisplacement);
+		}
+		var reverseDisplacement = boxPoint.clone().sub(forwardPoint.clone());
+		basketball.addPosition(reverseDisplacement);
+		return;
+
+		for (var face in hit.points){
+			switch (parseInt(face)){
+				case FRONT:
+					var newFront = 0;
+					if (side == "HOME"){
+						newFront = bbox.max.x + radius;
+					}
+					else if (side == "AWAY"){
+						newFront = bbox.min.x - radius;
+					}
+					center.x = newFront;
+					break;
+				case BACK:
+					var newBack = 0;
+					if (side == "HOME"){
+						newBack = bbox.min.x - radius;
+					}
+					else if (side == "AWAY"){
+						newBack = bbox.max.x + radius;
+					}
+					center.x = newBack;
+					break;
+				case TOP:
+					center.y = bbox.max.y + radius;
+					break;
+				case BOTTOM:
+					center.y = bbox.min.y - radius;
 					break;
 				case LEFT:
 					var newLeft = 0;
@@ -91,7 +256,7 @@ function Backboard(side){
 					else if (side == "AWAY"){
 						newLeft = bbox.min.z - radius;
 					}
-					position.z = newLeft;
+					center.z = newLeft;
 					break;
 				case RIGHT:
 					var newRight = 0;
@@ -101,14 +266,13 @@ function Backboard(side){
 					else if (side == "HOME"){
 						newRight = bbox.min.z - radius;
 					}
-					position.z = newRight;
+					center.z = newRight;
 					break;
 				default:
-					position = basketball.getPosition();
 					break;
 			}
 		}
-		basketball.setPosition(position);
+		basketball.setPosition(center);
 	}
 
 	this.getBounceVector = function(velocity, collisions){

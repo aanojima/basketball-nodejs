@@ -1,0 +1,31 @@
+Away Backboard max:
+x: 388.62
+y: 119.63399999999999
+z: 27.432
+
+Away Backboard min:
+x: 385.572
+y: 87.63
+z: -27.432
+
+Basketball Radius:
+3.6194999999999995
+
+Straight test
+new THREE.Vector3( FEET(30), 86.02, 29.341),
+
+BOTTOM_RIGHT EDGE
+new THREE.Vector3(387, 87.63 - FEET(5), 27.432 + FEET(5)),
+			new THREE.Vector3(FEET(0), FEET(5), FEET(-5))
+
+FRONT_BOTTOM_RIGHT CORNER-TESTING
+new THREE.Vector3(388.62 - FEET(5) - 0.5*RADIUS, 87.63 - FEET(5), 27.432 + FEET(5)),
+			new THREE.Vector3(FEET(1), FEET(1), FEET(-1))
+
+BACK_BOTTOM_RIGHT CORNER-TESTING
+new THREE.Vector3(388.62 + (FEET(5) +0.5*RADIUS), 87.63 - FEET(5), 27.432 + FEET(5)),
+			new THREE.Vector3(FEET(-3), FEET(3), FEET(-3))
+
+SHOOTING
+new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
+			new THREE.Vector3(FEET(15), FEET(12), FEET(-10))

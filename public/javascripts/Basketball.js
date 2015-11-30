@@ -22,10 +22,17 @@ function Basketball(){
 		return _state[0].clone();
 	}
 
-	this.setPosition = function(newPosition){
-		_state[0].x = newPosition.x;
-		_state[0].y = newPosition.y;
-		_state[0].z = newPosition.z;
+	this.setPosition = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			_state[0].x = a.x;
+			_state[0].y = a.y;
+			_state[0].z = a.z;	
+		}
+		else {
+			_state[0].x = a;
+			_state[0].y = b;
+			_state[0].z = c;
+		}
 	}
 
 	this.setY = function(Y){
@@ -60,8 +67,17 @@ function Basketball(){
 		}
 	}
 
-	this.addVelocity = function(vec){
-		_state[1].add(vec);
+	this.addVelocity = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			_state[1].x += a.x;
+			_state[1].y += a.y;
+			_state[1].z += a.z;
+		}
+		else {
+			_state[1].x += a;
+			_state[1].y += b;
+			_state[1].z += c;
+		}
 	}
 
 	this.setState = function(newState, test){
@@ -77,10 +93,6 @@ function Basketball(){
 	}
 
 	this.spin = function(step){
-		// +X => -Z
-		// -X => +Z
-		// +Z => -X
-		// -Z => +X
 		var axis = new THREE.Vector3(-1*_angularVelocity.z, 0, _angularVelocity.x);
 		var angularSpeed = _angularVelocity.length();
 		var angle = -1 * angularSpeed * step;
@@ -99,9 +111,10 @@ function Basketball(){
 		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * MASS);
 		netForce.add(gravity);
 
-		// Drag
+		// TODO: Drag
 
-		// External Forces
+		// TODO: External Forces
+
 		// Friction
 		for (var i in _normalHash){
 			var normal = _normalHash[i];
@@ -130,8 +143,8 @@ function Basketball(){
 
 	function init(){;
 		_state = [
-			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
-			new THREE.Vector3(FEET(19), FEET(11), FEET(-15))
+			new THREE.Vector3(388.62 + (FEET(5) +0.5*RADIUS), 87.63 - FEET(5), 27.432 + FEET(5)),
+			new THREE.Vector3(FEET(-3), FEET(3), FEET(-3))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);

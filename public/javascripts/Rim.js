@@ -34,15 +34,29 @@ function Rim(side){
 	}
 
 	this.hasCollision = function(basketball, hit){
-		// TODO
 		var bbox = this.getBoundingBox();
-		if (!bbox.isIntersectionBox(basketball.getBoundingBox())){
+		var radius = basketball.getRadius();
+		var center = basketball.getPosition();
+		var initialCollisionTest = bbox.distanceToPoint(center) <= radius;
+		if (!initialCollisionTest){
+			// STOP here, reduce time spent on operation
 			return false;
 		}
-		return true;
+
+		// TODO
+		// TODO: reduce going through ALL FACES
+		for (var i in _mesh.geometry.faces){
+			var face = _mesh.geometry.faces[i];
+			var normal = face.normal
+		}
+		// Get closest point
+		// var closestPoint =
+
+		return false;
 	}
 
 	this.getBoundingBox = function(){
+		// TODO: Apply Rotation
 		_mesh.geometry.computeBoundingBox();
 		var bb = _mesh.geometry.boundingBox.clone();
 		var xMin = bb.min.x;

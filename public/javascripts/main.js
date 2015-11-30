@@ -196,7 +196,7 @@ function render()
 	if (awayBackboardCollision){
 
 		// TODO: "FIX" Basketball position
-		awayBackboard.fixCollisionPosition(basketball, step, awayHit.points);
+		awayBackboard.fixCollisionPosition(basketball, step, awayHit);
 
 		// Bounce off the backboard
 		// TODO: Fix for edges and corners
@@ -211,7 +211,7 @@ function render()
 	
 	if (homeBackboardCollision){
 		// TODO: "FIX" Basketball position
-		homeBackboard.fixCollisionPosition(basketball, homeHit.points);
+		homeBackboard.fixCollisionPosition(basketball, homeHit);
 
 		// Bounce off the backboard
 		// TODO: Fix for edges and corners
