@@ -8,11 +8,21 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet;
-var step = 0.022; // PATRAMETER
+const MAX_STEP = 1 / 30;
+var step = 1 / 30; // PATRAMETER (30 FPS)
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
+var timestamp = 0;
 
 init();
-animate();
+animate(timestamp);
+
+function reset()
+{
+	for (var i = scene.children.length - 1; i >= 0; i--){
+		var obj = scene.children[i];
+		scene.remove(obj);
+	}
+}
 
 // FUNCTIONS
 function init() 
@@ -25,7 +35,7 @@ function init()
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	scene.add(camera);
-	camera.position.set(FEET(20),FEET(10),FEET(10));
+	camera.position.set(FEET(0),FEET(10),FEET(10));
 	camera.lookAt(scene.position);	
 	
 	// RENDERER
@@ -44,7 +54,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	controls.center = new THREE.Vector3(388.62, 87.63, 27.432);
+	// controls.center = new THREE.Vector3(388.62, 87.63, 27.432);
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
@@ -69,33 +79,9 @@ function init()
 
 	// Net
 	homeNet = new Net("HOME");
-	var knotMeshes = homeNet.getKnots();
-	for (var i in knotMeshes){
-		var mesh = knotMeshes[i];
-		scene.add(mesh);
-	}
-	var lineMeshes = homeNet.getLines();
-	for (var i in lineMeshes){
-		var line = lineMeshes[i];
-		var mesh = lineMeshes[i];
-		scene.add(mesh);
-	}
-
+	scene.add(homeNet.getMesh());
 	awayNet = new Net("AWAY");
 	scene.add(awayNet.getMesh());
-	// var knotMeshes = awayNet.getKnots();
-	// for (var i in knotMeshes){
-	// 	var mesh = knotMeshes[i];
-	// 	scene.add(mesh);
-	// }
-	// var lineMeshes = awayNet.getLines();
-	// for (var i in lineMeshes){
-	// 	var line = lineMeshes[i];
-	// 	var mesh = lineMeshes[i];
-	// 	scene.add(mesh);
-	// }
-
-
 	
 	// SKYBOX
 	// var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
@@ -110,8 +96,10 @@ function init()
 	scene.add(basketball.getMesh());
 }
 
-function animate() 
+function animate(time) 
 {
+	step = Math.min((time - timestamp || step) / 1000, MAX_STEP);
+	timestamp = time;
     requestAnimationFrame( animate );
 	render();	
 	update();
@@ -130,7 +118,6 @@ function update()
 
 function render() 
 {
-
 	// Collision-Detection
 	var courtCollision = court.hasCollision(basketball);
 
@@ -195,11 +182,10 @@ function render()
 	
 	if (awayBackboardCollision){
 
-		// TODO: "FIX" Basketball position
+		// "FIX" Basketball position
 		awayBackboard.fixCollisionPosition(basketball, step, awayHit);
 
 		// Bounce off the backboard
-		// TODO: Fix for edges and corners
 		var initialVelocity = basketball.getVelocity();
 		var finalVelocity = awayBackboard.getBounceVector(initialVelocity, awayHit.points);
 		basketball.setVelocity(finalVelocity);
@@ -210,11 +196,10 @@ function render()
 	}
 	
 	if (homeBackboardCollision){
-		// TODO: "FIX" Basketball position
+		// "FIX" Basketball position
 		homeBackboard.fixCollisionPosition(basketball, homeHit);
 
 		// Bounce off the backboard
-		// TODO: Fix for edges and corners
 		var initialVelocity = basketball.getVelocity();
 		var finalVelocity = homeBackboard.getBounceVector(initialVelocity, homeHit.points);
 		basketball.setVelocity(finalVelocity);
@@ -226,7 +211,7 @@ function render()
 
 	var awayRimCollision = awayRim.hasCollision(basketball);
 	if (awayRimCollision){
-		basketball.setVelocity(0,0,0);
+		// basketball.setVelocity(0,0,0);
 	}
 
 	basketball.spin(step);

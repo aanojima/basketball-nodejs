@@ -180,6 +180,7 @@ function Backboard(side){
 			else if (hit.type === "edge"){
 				boxPoint = this.getEdgePoint(faces, center);
 			}
+			console.log(boxPoint);
 
 			// Find Forward Point
 			var rayStart = boxPoint.clone().add(direction.clone().multiplyScalar(2*radius));
@@ -211,10 +212,8 @@ function Backboard(side){
 		}
 		else {
 			var ray = new THREE.Ray(center.clone(), direction.clone());
-			var facePoint = ray.intersectBox(bbox);
-			var forwardPoint = center.clone().add(direction.clone().multiplyScalar(radius));
-			var reverseDisplacement = facePoint.clone().sub(forwardPoint.clone());
-			basketball.addPosition(reverseDisplacement);
+			boxPoint = ray.intersectBox(bbox);
+			forwardPoint = center.clone().add(direction.clone().multiplyScalar(radius));
 		}
 		var reverseDisplacement = boxPoint.clone().sub(forwardPoint.clone());
 		basketball.addPosition(reverseDisplacement);
