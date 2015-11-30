@@ -47,10 +47,17 @@ function Basketball(){
 		return _state[1].clone();
 	}
 
-	this.setVelocity = function(newVelocity){
-		_state[1].x = newVelocity.x;
-		_state[1].y = newVelocity.y;
-		_state[1].z = newVelocity.z;
+	this.setVelocity = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			_state[1].x = a.x;
+			_state[1].y = a.y;
+			_state[1].z = a.z;
+		}
+		else {
+			_state[1].x = a;
+			_state[1].y = b;
+			_state[1].z = c;
+		}
 	}
 
 	this.addVelocity = function(vec){
@@ -124,7 +131,7 @@ function Basketball(){
 	function init(){;
 		_state = [
 			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
-			new THREE.Vector3(FEET(15), FEET(12), FEET(-10))
+			new THREE.Vector3(FEET(19), FEET(11), FEET(-15))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);

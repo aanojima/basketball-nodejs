@@ -36,9 +36,10 @@ function Rim(side){
 	this.hasCollision = function(basketball, hit){
 		// TODO
 		var bbox = this.getBoundingBox();
-		if (!bbox.intersection(basketball.getBoundingBox())){
+		if (!bbox.isIntersectionBox(basketball.getBoundingBox())){
 			return false;
 		}
+		return true;
 	}
 
 	this.getBoundingBox = function(){

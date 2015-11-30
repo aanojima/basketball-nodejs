@@ -5,7 +5,7 @@ function Backboard(side){
 	const DEPTH = INCHES(4);
 	const DISTANCE = FEET(42) + DEPTH;
 	const GROUND_DISTANCE = FEET(10) + 0.5*HEIGHT - INCHES(5); // ATTACH_HEIGHT + INCHES(1)
-	const ELASTICITY = 0.9;
+	const ELASTICITY = 0.7;
 	const FK_COEFFICIENT = 0.25; // TODO: Research
 
 	// FACES
@@ -128,7 +128,6 @@ function Backboard(side){
 		var NR = N.clone().dot(R);
 		var component = N.clone().multiplyScalar(2 * NR);
 		var bounce = R.sub(component);
-		console.log(velocity,bounce);
 
 		// Loss of momentum (elasticity)
 		bounce.multiplyScalar(ELASTICITY);
@@ -146,12 +145,9 @@ function Backboard(side){
 	}
 
 	this.hasCollision = function(basketball, hit){
-
-		// Treat the backboard like a plane (with 2 normals)
-		// First Check for sphere plane intersection
-		
-		// Plane Information (ignoring depth)
+		// Plane Information
 		var position = _mesh.position.clone();
+		var bbox = this.getBoundingBox();
 		var normals = this.getNormals();
 		var frontNormal = normals[FRONT];
 		var backNormal = normals[BACK];
@@ -166,47 +162,17 @@ function Backboard(side){
 		// FRONT and BACK
 		var frontPoint = center.clone().sub(frontNormal.clone().multiplyScalar(radius)); // point on ball
 		var backPoint = center.clone().sub(backNormal.clone().multiplyScalar(radius));
-		var frontTemp = frontPoint.dot(frontNormal.clone()) - frontNormal.clone().dot(position.clone());
-		var backTemp = backPoint.dot(backNormal.clone()) - backNormal.clone().dot(position.clone());
-		var bbox = this.getBoundingBox();
-		var frontInRange = 
-			frontPoint.y <= bbox.max.y + radius && frontPoint.y >= bbox.min.y - radius && 
-			frontPoint.z <= bbox.max.z + radius && frontPoint.z >= bbox.min.z - radius;
-		var backInRange = 
-			backPoint.y <= bbox.max.y + radius && backPoint.y >= bbox.min.y - radius && 
-			backPoint.z <= bbox.max.z + radius && backPoint.z >= bbox.min.z - radius;
-		var xCollision = (frontTemp <= DEPTH / 2 && frontInRange) && (backTemp <= DEPTH / 2 && backInRange);
 
 		// TOP and BOTTOM
 		var topPoint = center.clone().sub(topNormal.clone().multiplyScalar(radius)); // point on ball
 		var bottomPoint = center.clone().sub(bottomNormal.clone().multiplyScalar(radius));
-		var topTemp = topPoint.dot(topNormal.clone()) - topNormal.clone().dot(position.clone());
-		var bottomTemp = bottomPoint.dot(bottomNormal.clone()) - bottomNormal.clone().dot(position.clone());
-		var bbox = this.getBoundingBox();
-		var topInRange = 
-			topPoint.z <= bbox.max.z + radius && topPoint.z >= bbox.min.z - radius && 
-			topPoint.x <= bbox.max.x + radius && topPoint.x >= bbox.min.x - radius;
-		var bottomInRange = 
-			bottomPoint.z <= bbox.max.z + radius && bottomPoint.z >= bbox.min.z - radius && 
-			bottomPoint.x <= bbox.max.x + radius && bottomPoint.x >= bbox.min.x - radius;
-		var yCollision = (topTemp <= HEIGHT / 2 && topInRange) && (bottomTemp <= HEIGHT / 2 && bottomInRange);
 
 		// SIDES
 		var leftPoint = center.clone().sub(leftNormal.clone().multiplyScalar(radius)); // point on ball
 		var rightPoint = center.clone().sub(rightNormal.clone().multiplyScalar(radius));
-		var leftTemp = leftPoint.dot(leftNormal.clone()) - leftNormal.clone().dot(position.clone());
-		var rightTemp = rightPoint.dot(rightNormal.clone()) - rightNormal.clone().dot(position.clone());
-		var bbox = this.getBoundingBox();
-		var leftInRange = 
-			leftPoint.y <= bbox.max.y + radius && leftPoint.y >= bbox.min.y - radius && 
-			leftPoint.x <= bbox.max.x + radius && leftPoint.x >= bbox.min.x - radius;
-		var rightInRange = 
-			rightPoint.y <= bbox.max.y + radius && rightPoint.y >= bbox.min.y - radius && 
-			rightPoint.x <= bbox.max.x + radius && rightPoint.x >= bbox.min.x - radius;
-		var zCollision = (leftTemp <= WIDTH / 2 && leftInRange) && (rightTemp <= WIDTH / 2 && rightInRange);
 
 
-		var collision = (xCollision);
+		var collision = bbox.distanceToPoint(center) <= radius;
 		if (collision){
 			if (hit === undefined){
 				hit = {

@@ -44,7 +44,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	controls.center = new THREE.Vector3(FEET(40), FEET(8), FEET(0));
+	controls.center = new THREE.Vector3(388.62, 87.63, 27.432);
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
@@ -192,7 +192,8 @@ function render()
 		
 		basketball.addFriction()
 	}
-	else if (awayBackboardCollision){
+	
+	if (awayBackboardCollision){
 
 		// TODO: "FIX" Basketball position
 		awayBackboard.fixCollisionPosition(basketball, step, awayHit.points);
@@ -203,13 +204,12 @@ function render()
 		var finalVelocity = awayBackboard.getBounceVector(initialVelocity, awayHit.points);
 		basketball.setVelocity(finalVelocity);
 
-		
-
 		// Spin off the backboard
 		rotationScale = 0.25 / basketball.getRadius();
 		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 	}
-	else if (homeBackboardCollision){
+	
+	if (homeBackboardCollision){
 		// TODO: "FIX" Basketball position
 		homeBackboard.fixCollisionPosition(basketball, homeHit.points);
 
@@ -222,6 +222,11 @@ function render()
 		// Spin off the backboard
 		rotationScale = 0.25 / basketball.getRadius();
 		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
+	}
+
+	var awayRimCollision = awayRim.hasCollision(basketball);
+	if (awayRimCollision){
+		basketball.setVelocity(0,0,0);
 	}
 
 	basketball.spin(step);
