@@ -2,6 +2,7 @@ function Basketball(){
 
 	const MASS = 0.625;
 	const RADIUS = INCHES(4.75);
+
 	var _state, _mesh, _angularVelocity, _courtCollision, _normalHash, _frictionHash;
 
 	this.getMass = function(){
@@ -41,7 +42,7 @@ function Basketball(){
 
 	this.addPosition = function(a,b,c){
 		if (a !== undefined && b === undefined && c === undefined){
-			_state[0].add(a);	
+			_state[0].add(a);
 		}
 		else {
 			_state[0].x += a;
@@ -143,8 +144,8 @@ function Basketball(){
 
 	function init(){;
 		_state = [
-			new THREE.Vector3( FEET(0) + FEET(0), FEET(10), FEET(0)),
-			new THREE.Vector3(FEET(0), FEET(30), FEET(0))
+			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
+			new THREE.Vector3(FEET(15), FEET(12), FEET(-14))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);

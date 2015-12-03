@@ -165,7 +165,7 @@ function Backboard(side){
 
 	// TODO: Predict if it will hit in the next time-step
 	this.fixCollisionPosition = function(basketball, step, hit){
-		// TODO: NEED TO FIX
+		// TODO: NEED TO FIX (See Rim Torus collision detection)
 		var bbox = this.getBoundingBox();
 		var radius = basketball.getRadius();
 		var center = basketball.getPosition();
@@ -180,7 +180,6 @@ function Backboard(side){
 			else if (hit.type === "edge"){
 				boxPoint = this.getEdgePoint(faces, center);
 			}
-			console.log(boxPoint);
 
 			// Find Forward Point
 			var rayStart = boxPoint.clone().add(direction.clone().multiplyScalar(2*radius));
@@ -199,14 +198,13 @@ function Backboard(side){
 					var normalNew = relativeStart.clone().add(rayDirection.clone().multiplyScalar(t)).sub(center).normalize();
 				}
 				tempT = (-1.0*b + Math.sqrt(discriminant)) / (2.0*a);
-				if (t >= 0 && tempT < t){
+				if (tempT >= 0 && tempT < t){
 					t = tempT;
 					var normalNew = relativeStart.clone().add(rayDirection.clone().multiplyScalar(t)).sub(center).normalize();
 				}
 			}
 			if (t === Infinity){
-				basketball.setVelocity(0,0,0);
-				return;
+				t = 0;
 			}
 			forwardPoint = ray.at(t);
 		}
@@ -219,59 +217,59 @@ function Backboard(side){
 		basketball.addPosition(reverseDisplacement);
 		return;
 
-		for (var face in hit.points){
-			switch (parseInt(face)){
-				case FRONT:
-					var newFront = 0;
-					if (side == "HOME"){
-						newFront = bbox.max.x + radius;
-					}
-					else if (side == "AWAY"){
-						newFront = bbox.min.x - radius;
-					}
-					center.x = newFront;
-					break;
-				case BACK:
-					var newBack = 0;
-					if (side == "HOME"){
-						newBack = bbox.min.x - radius;
-					}
-					else if (side == "AWAY"){
-						newBack = bbox.max.x + radius;
-					}
-					center.x = newBack;
-					break;
-				case TOP:
-					center.y = bbox.max.y + radius;
-					break;
-				case BOTTOM:
-					center.y = bbox.min.y - radius;
-					break;
-				case LEFT:
-					var newLeft = 0;
-					if (side == "HOME"){
-						newLeft = bbox.max.z + radius;
-					}
-					else if (side == "AWAY"){
-						newLeft = bbox.min.z - radius;
-					}
-					center.z = newLeft;
-					break;
-				case RIGHT:
-					var newRight = 0;
-					if (side == "AWAY"){
-						newRight = bbox.max.z + radius;
-					}
-					else if (side == "HOME"){
-						newRight = bbox.min.z - radius;
-					}
-					center.z = newRight;
-					break;
-				default:
-					break;
-			}
-		}
-		basketball.setPosition(center);
+		// for (var face in hit.points){
+		// 	switch (parseInt(face)){
+		// 		case FRONT:
+		// 			var newFront = 0;
+		// 			if (side == "HOME"){
+		// 				newFront = bbox.max.x + radius;
+		// 			}
+		// 			else if (side == "AWAY"){
+		// 				newFront = bbox.min.x - radius;
+		// 			}
+		// 			center.x = newFront;
+		// 			break;
+		// 		case BACK:
+		// 			var newBack = 0;
+		// 			if (side == "HOME"){
+		// 				newBack = bbox.min.x - radius;
+		// 			}
+		// 			else if (side == "AWAY"){
+		// 				newBack = bbox.max.x + radius;
+		// 			}
+		// 			center.x = newBack;
+		// 			break;
+		// 		case TOP:
+		// 			center.y = bbox.max.y + radius;
+		// 			break;
+		// 		case BOTTOM:
+		// 			center.y = bbox.min.y - radius;
+		// 			break;
+		// 		case LEFT:
+		// 			var newLeft = 0;
+		// 			if (side == "HOME"){
+		// 				newLeft = bbox.max.z + radius;
+		// 			}
+		// 			else if (side == "AWAY"){
+		// 				newLeft = bbox.min.z - radius;
+		// 			}
+		// 			center.z = newLeft;
+		// 			break;
+		// 		case RIGHT:
+		// 			var newRight = 0;
+		// 			if (side == "AWAY"){
+		// 				newRight = bbox.max.z + radius;
+		// 			}
+		// 			else if (side == "HOME"){
+		// 				newRight = bbox.min.z - radius;
+		// 			}
+		// 			center.z = newRight;
+		// 			break;
+		// 		default:
+		// 			break;
+		// 	}
+		// }
+		// basketball.setPosition(center);
 	}
 
 	this.getBounceVector = function(velocity, collisions){

@@ -9,7 +9,7 @@ var keyboard = new KeyboardState();
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet;
 const MAX_STEP = 1 / 30;
-var step = 1 / 30; // PATRAMETER (30 FPS)
+var step = 1 / 40; // PATRAMETER (30 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 var timestamp = 0;
 
@@ -35,7 +35,7 @@ function init()
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	scene.add(camera);
-	camera.position.set(FEET(0),FEET(10),FEET(10));
+	camera.position.set(FEET(30),FEET(30),FEET(0));
 	camera.lookAt(scene.position);	
 	
 	// RENDERER
@@ -54,7 +54,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	// controls.center = new THREE.Vector3(388.62, 87.63, 27.432);
+	controls.center = new THREE.Vector3(FEET(41), FEET(10), FEET(0));
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
@@ -98,8 +98,8 @@ function init()
 
 function animate(time) 
 {
-	step = Math.min((time - timestamp || step) / 1000, MAX_STEP);
-	timestamp = time;
+	// step = Math.min((time - timestamp || step) / 1000, MAX_STEP);
+	// timestamp = time;
     requestAnimationFrame( animate );
 	render();	
 	update();
@@ -124,16 +124,16 @@ function render()
 	// Court-Basketball Forces
 	if (courtCollision){
 		// Add a Normal Force
-		var courtNormal = court.getNormalForce(basketball.getMass());
-		basketball.addNormal("court", courtNormal);
+		// var courtNormal = court.getNormalForce(basketball.getMass());
+		// basketball.addNormal("court", courtNormal);
 
 		// Add a Friction Force
-		var courtFriction = court.getFrictionForce(courtNormal, basketball.getVelocity());
-		basketball.addFriction("court", courtFriction);
+		// var courtFriction = court.getFrictionForce(courtNormal, basketball.getVelocity());
+		// basketball.addFriction("court", courtFriction);
 		
 	} else {
-		basketball.removeNormal("court");
-		basketball.removeFriction("court");
+		// basketball.removeNormal("court");
+		// basketball.removeFriction("court");
 	}
 
 	// Evaluate Derivatives
@@ -209,9 +209,22 @@ function render()
 		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 	}
 
-	var awayRimCollision = awayRim.hasCollision(basketball);
+	var awayRimCollision = awayRim.handleCollision(basketball);
 	if (awayRimCollision){
+		// // Spin off the rim
 		// basketball.setVelocity(0,0,0);
+		var finalVelocity = basketball.getVelocity();
+		rotationScale = 0.25 / basketball.getRadius();
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
+	}
+
+	var homeRimCollision = homeRim.handleCollision(basketball);
+	if (homeRimCollision){
+		// // Spin off the rim
+		// basketball.setVelocity(0,0,0);
+		var finalVelocity = basketball.getVelocity();
+		rotationScale = 0.25 / basketball.getRadius();
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 	}
 
 	basketball.spin(step);
