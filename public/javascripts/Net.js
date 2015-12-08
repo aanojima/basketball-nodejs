@@ -124,6 +124,8 @@ function Knot(x,y,z){
 		});
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.position.set(x,y,z);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = true;
 	}
 
 	init(x,y,z);
@@ -151,6 +153,8 @@ function Line(meshA,meshB){
 		});
 
 		_mesh = new THREE.Line(geometry, material);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = true;
 	}
 
 	init(meshA, meshB);

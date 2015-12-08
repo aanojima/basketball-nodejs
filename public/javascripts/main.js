@@ -43,6 +43,7 @@ function init()
 	else
 		renderer = new THREE.CanvasRenderer();
 	renderer.shadowMap.enabled = true;
+	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 	
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	container = document.getElementById( 'ThreeJS' );
@@ -58,7 +59,9 @@ function init()
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
-	light.position.set(0,0,0);
+	light.position.set(0,FEET(50),0);
+	light.castShadow = true;
+	light.shadowDarkness = 0.5;
 	scene.add(light);
 	
 	// FLOOR

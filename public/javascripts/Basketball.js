@@ -157,6 +157,8 @@ function Basketball(){
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = false;
 		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / RADIUS);
 		_normalHash = {};

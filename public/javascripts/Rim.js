@@ -206,6 +206,8 @@ function Rim(side){
 			side: THREE.DoubleSide
 		});
 		_torusMesh = new THREE.Mesh(torusGeometry, torusMaterial);
+		_torusMesh.castShadow = true;
+		_torusMesh.receiveShadow = true;
 		_group.add(_torusMesh);
 		
 		// Backboard Attachment
@@ -245,6 +247,8 @@ function Rim(side){
 			side: THREE.DoubleSide
 		});
 		_attachmentMesh = new THREE.Mesh(attachmentGeometry, attachmentMaterial);
+		_attachmentMesh.castShadow = true;
+		_attachmentMesh.receiveShadow = true;
 		_group.add(_attachmentMesh);
 
 		// Ring Shadow
@@ -274,6 +278,8 @@ function Rim(side){
 			side: THREE.DoubleSide
 		});
 		_shadowMesh = new THREE.Mesh(shadowGeometry, shadowMaterial);
+		_shadowMesh.castShadow = true;
+		_shadowMesh.receiveShadow = true;
 		_group.add(_shadowMesh)
 
 		_group.position.y = FEET(10);

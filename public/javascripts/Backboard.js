@@ -449,6 +449,8 @@ function Backboard(side){
 			return;
 		}
 		_mesh = new THREE.Mesh(geometry, material);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = true;
 		_mesh.position.y = GROUND_DISTANCE; // Attachment Height - 1 inch
 		_mesh.position.x = _sideSign * DISTANCE;
 		_mesh.rotation.y = _sideSign * Math.PI / -2; // Depends on side
