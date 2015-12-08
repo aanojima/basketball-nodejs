@@ -183,6 +183,9 @@ function update()
 
 function render() 
 {
+	if (camera.position.y < 1){
+		camera.position.y = 1
+	}
 	if (window.PLAY){
 		// Collision-Detection
 		var courtCollision = court.hasCollision(basketball);
