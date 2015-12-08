@@ -19,7 +19,7 @@ function Rim(side){
 	const T_SEGMENTS = 64;
 
 	// Physics Constants
-	const ELASTICITY = 0.65;
+	const ELASTICITY = 0.5;
 
 	// Private Member Fields
 	var _group, _torusMesh, _attachmentMesh, _shadowMesh;

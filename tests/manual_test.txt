@@ -29,3 +29,6 @@ new THREE.Vector3(388.62 + (FEET(5) +0.5*RADIUS), 87.63 - FEET(5), 27.432 + FEET
 SHOOTING
 new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
 			new THREE.Vector3(FEET(15), FEET(12), FEET(-10))
+
+new THREE.Vector3( FEET(40.5), FEET(15), FEET(0)),
+			new THREE.Vector3(FEET(0), FEET(0), FEET(0.2))

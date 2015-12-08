@@ -145,7 +145,7 @@ function Basketball(){
 	function init(){;
 		_state = [
 			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
-			new THREE.Vector3(FEET(15), FEET(12), FEET(-14))
+			new THREE.Vector3(FEET(14.5), FEET(12.5), FEET(-13))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);

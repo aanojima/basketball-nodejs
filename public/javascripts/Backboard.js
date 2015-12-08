@@ -418,18 +418,28 @@ function Backboard(side){
 
 	function init(side){
 		// TODO: Unique texture for each side
-		var urls = [
-			'images/basketball-backboard-front.png', 'images/basketball-backboard-back.png',
-			'images/basketball-backboard-side.png','images/basketball-backboard-side.png',
-			
-			'images/basketball-backboard-top.png','images/basketball-backboard-top.png'
+		// Z+, Z-, Y+, Y-
+		var materials = [
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
+			}),
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
+			}),
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
+			}),
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
+			}),
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-front.png')
+			}),
+			new THREE.MeshBasicMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-back.png')
+			})
 		];
-		var texture = new THREE.ImageUtils.loadTexture('images/basketball-backboard-front.png');
-		var material = new THREE.MeshBasicMaterial({
-			map : texture,
-			color : 0xffffff,
-			side: THREE.DoubleSide
-		});
+		var material = new THREE.MeshFaceMaterial(materials);
 		var geometry = new THREE.CubeGeometry(WIDTH, HEIGHT, DEPTH);
 		if (side === "HOME"){
 			_sideSign = -1;
