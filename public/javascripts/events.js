@@ -14,6 +14,17 @@ $(document).ready(function(){
 		}
 	});
 
+	$("#reset-button").click(function(e){
+		window.PLAY = false;
+		$("#play-button").prop("src", "images/play-button.jpg");
+		$("#play-label").text("PLAY");
+		$(document).trigger("reset");
+	});
+
+	$("#ball-icon").click(function(e){
+		$(document).trigger("ballfocus");
+	});
+
 	$(".float-input").keypress(function(e){
 		if ((e.which != 46 || $(this).val().indexOf('.') != -1) && (e.which < 48 || e.which > 57) || (e.which == 46 && $(this).caret().start == 0)){
 			e.preventDefault();
@@ -40,5 +51,9 @@ $(document).ready(function(){
 		var z = $("#z-velocity").val() || 0;
 		
 		$(document).trigger("setvelocity", [FEET(x), FEET(y), FEET(z)]);
+	});
+
+	$(".velocity-input").on("change", function(event){
+		$(this).next().val($(this).val());
 	});
 });

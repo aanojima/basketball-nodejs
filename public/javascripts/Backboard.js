@@ -420,22 +420,22 @@ function Backboard(side){
 		// TODO: Unique texture for each side
 		// Z+, Z-, Y+, Y-
 		var materials = [
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
 			}),
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
 			}),
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
 			}),
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
 			}),
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-front.png')
 			}),
-			new THREE.MeshBasicMaterial({
+			new THREE.MeshLambertMaterial({
 				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-back.png')
 			})
 		];

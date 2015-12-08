@@ -119,7 +119,7 @@ function Knot(x,y,z){
 
 	function init(x,y,z){
 		var geometry = new THREE.SphereGeometry(KNOT_RADIUS, 32, 32);
-		var material = new THREE.MeshBasicMaterial({
+		var material = new THREE.MeshLambertMaterial({
 			color: 0xffffff
 		});
 		_mesh = new THREE.Mesh(geometry, material);
@@ -147,9 +147,8 @@ function Line(meshA,meshB){
 			meshB.position
 		);
 
-		var material = new THREE.LineBasicMaterial({
+		var material = new THREE.MeshLambertMaterial({
 			color : 0xffffff,
-			linewidth : INCHES(1)
 		});
 
 		_mesh = new THREE.Line(geometry, material);

@@ -8,7 +8,7 @@ var keyboard = new KeyboardState();
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
 const MAX_STEP = 1 / 30;
-var step = 1 / 120; // PATRAMETER (30 FPS) 0.022
+var step = 1 / 40; // PATRAMETER (30 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 var timestamp = 0;
 
@@ -58,11 +58,15 @@ function init()
 	controls.center = new THREE.Vector3(FEET(41), FEET(10), FEET(0));
 	
 	// LIGHT
-	var light = new THREE.DirectionalLight(0xffffff);
-	light.position.set(0,FEET(50),0);
-	light.castShadow = true;
-	light.shadowDarkness = 0.5;
-	scene.add(light);
+	var topLight1 = new THREE.DirectionalLight(0xffffff);
+	topLight1.position.set(0,FEET(50),0);
+	topLight1.castShadow = true;
+	topLight1.shadowDarkness = 0.5;
+	topLight1.inensity = 0.5;
+	scene.add(topLight1);
+
+	var light = new THREE.AmbientLight( 0x828282 ); // soft white light
+	scene.add( light );
 	
 	// FLOOR
 	court = new Court();
@@ -106,6 +110,14 @@ function init()
 	arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
 	scene.add(arrowHelper);
 
+	$("#x-position").val(PIXEL2FEET(origin.x));
+	$("#y-position").val(PIXEL2FEET(origin.y));
+	$("#z-position").val(PIXEL2FEET(origin.z));
+
+	$("#x-velocity").val(PIXEL2FEET(velocity.x)).next().val(velocity.x);
+	$("#y-velocity").val(PIXEL2FEET(velocity.y)).next().val(velocity.y);
+	$("#z-velocity").val(PIXEL2FEET(velocity.z)).next().val(velocity.z);
+
 	$(document).on("setposition", function(event, x, y, z){
 		basketball.setPosition(x, y, z);
 		updateArrow(arrowHelper, basketball);
@@ -113,7 +125,28 @@ function init()
 
 	$(document).on("setvelocity", function(event, x, y, z){
 		basketball.setVelocity(x, y, z);
+		rotationScale = 0.25 / basketball.getRadius();
+		var finalVelocity = basketball.getVelocity();
+		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 		updateArrow(arrowHelper, basketball);
+	});
+
+	$(document).on("reset", function(event){
+		basketball.setPosition(0,0,0);
+		basketball.setVelocity(0,0,0);
+		$("#x-position").val(0);
+		$("#y-position").val(0);
+		$("#z-position").val(0);
+
+		$("#x-velocity").val(0).next().val(0);
+		$("#y-velocity").val(0).next().val(0);
+		$("#z-velocity").val(0).next().val(0);
+
+		updateArrow(arrowHelper, basketball);
+	});
+
+	$(document).on("ballfocus", function(event){
+		controls.center = basketball.getPosition();
 	});
 }
 

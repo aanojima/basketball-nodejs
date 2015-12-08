@@ -153,7 +153,7 @@ function Basketball(){
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);
-		var material = new THREE.MeshBasicMaterial({ 
+		var material = new THREE.MeshLambertMaterial({ 
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);

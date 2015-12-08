@@ -201,7 +201,7 @@ function Rim(side){
 
 		// Ring
 		var torusGeometry = new THREE.TorusGeometry(RING_RADIUS, RING_MINOR_RADIUS, R_SEGMENTS, T_SEGMENTS);
-		var torusMaterial = new THREE.MeshBasicMaterial({
+		var torusMaterial = new THREE.MeshLambertMaterial({
 			color : 0xcf5300,
 			side: THREE.DoubleSide
 		});
@@ -242,7 +242,7 @@ function Rim(side){
 			faceHelper(5, 7, 9),
 			faceHelper(1, 5, 9)
 		);
-		var attachmentMaterial = new THREE.MeshBasicMaterial({
+		var attachmentMaterial = new THREE.MeshLambertMaterial({
 			color : 0xcf5300,
 			side: THREE.DoubleSide
 		});
@@ -273,7 +273,7 @@ function Rim(side){
 			var face2 = new THREE.Face3(i+1, i+2, i+3);
 			shadowGeometry.faces.push(face1,face2);
 		}
-		var shadowMaterial = new THREE.MeshBasicMaterial({
+		var shadowMaterial = new THREE.MeshLambertMaterial({
 			color : 0xcf5300,
 			side: THREE.DoubleSide
 		});
