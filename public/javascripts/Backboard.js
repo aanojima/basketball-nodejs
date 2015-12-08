@@ -440,7 +440,7 @@ function Backboard(side){
 			})
 		];
 		var material = new THREE.MeshFaceMaterial(materials);
-		var geometry = new THREE.CubeGeometry(WIDTH, HEIGHT, DEPTH);
+		var geometry = new THREE.BoxGeometry(WIDTH, HEIGHT, DEPTH);
 		if (side === "HOME"){
 			_sideSign = -1;
 		} else if (side == "AWAY"){

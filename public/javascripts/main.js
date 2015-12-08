@@ -41,7 +41,8 @@ function init()
 	if ( Detector.webgl )
 		renderer = new THREE.WebGLRenderer( {antialias:true} );
 	else
-		renderer = new THREE.CanvasRenderer(); 
+		renderer = new THREE.CanvasRenderer();
+	renderer.shadowMap.enabled = true;
 	
 	renderer.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
 	container = document.getElementById( 'ThreeJS' );
@@ -120,7 +121,8 @@ function updateArrow(arrowHelper, basketball){
 		length = 0.001;
 	}
 	arrowHelper.setLength(length);
-	arrowHelper.position = basketball.getPosition();
+	var bPos = basketball.getPosition();
+	arrowHelper.position.set(bPos.x, bPos.y, bPos.z);
 }
 
 function animate(time) 
@@ -257,13 +259,7 @@ function render()
 
 		basketball.spin(step);
 
-		arrowHelper.setDirection(basketball.getVelocity().normalize());
-		var length = basketball.getVelocity().length() / 10;
-		if (length == 0){
-			length = 0.001;
-		}
-		arrowHelper.setLength(length);
-		arrowHelper.position = basketball.getPosition();
+		updateArrow(arrowHelper, basketball);
 	}
 
 	renderer.render(scene, camera);

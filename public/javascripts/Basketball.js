@@ -34,10 +34,12 @@ function Basketball(){
 			_state[0].y = b;
 			_state[0].z = c;
 		}
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.setY = function(Y){
 		_state[0].y = Y;
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.addPosition = function(a,b,c){
@@ -49,6 +51,7 @@ function Basketball(){
 			_state[0].y += b;
 			_state[0].z += c;
 		}
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.getVelocity = function(){
@@ -85,6 +88,7 @@ function Basketball(){
 		if (newState && newState.length === 2){
 			// Valid State
 			_state[0] = newState[0].clone();
+			_mesh.position.set(newState[0].x, newState[0].y, newState[0].z);
 			_state[1] = newState[1].clone();
 		}
 	}
@@ -153,7 +157,7 @@ function Basketball(){
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);
-		_mesh.position = _state[0];
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / RADIUS);
 		_normalHash = {};
 		_frictionHash = {};
