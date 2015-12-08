@@ -114,9 +114,9 @@ function init()
 	$("#y-position").val(PIXEL2FEET(origin.y));
 	$("#z-position").val(PIXEL2FEET(origin.z));
 
-	$("#x-velocity").val(PIXEL2FEET(velocity.x)).next().val(velocity.x);
-	$("#y-velocity").val(PIXEL2FEET(velocity.y)).next().val(velocity.y);
-	$("#z-velocity").val(PIXEL2FEET(velocity.z)).next().val(velocity.z);
+	$("#x-velocity").val(PIXEL2FEET(velocity.x)).next().val(PIXEL2FEET(velocity.x));
+	$("#y-velocity").val(PIXEL2FEET(velocity.y)).next().val(PIXEL2FEET(velocity.y));
+	$("#z-velocity").val(PIXEL2FEET(velocity.z)).next().val(PIXEL2FEET(velocity.z));
 
 	$(document).on("setposition", function(event, x, y, z){
 		basketball.setPosition(x, y, z);
