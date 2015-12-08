@@ -8,7 +8,7 @@ var keyboard = new KeyboardState();
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
 const MAX_STEP = 1 / 30;
-var step = 1 / 40; // PATRAMETER (30 FPS) 0.022
+var step = 0.022; // PATRAMETER (30 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 var timestamp = 0;
 
@@ -81,7 +81,7 @@ function init()
 	// Rim
 	homeRim = new Rim("HOME");
 	scene.add(homeRim.getMesh());
-	awayRim = new Rim("AWAY");
+	awayRim = new Rim("AWAY", scene);
 	scene.add(awayRim.getMesh());
 
 	// Net

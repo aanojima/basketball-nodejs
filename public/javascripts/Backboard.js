@@ -209,9 +209,12 @@ function Backboard(side){
 			forwardPoint = ray.at(t);
 		}
 		else {
-			var ray = new THREE.Ray(center.clone(), direction.clone());
+			// TODO: get normal of face
+			var normal = this.getNormal(parseInt(Object.keys(hit.points)[0]));
+			var rayDirection = normal.negate();
+			var ray = new THREE.Ray(center.clone(), rayDirection.clone());
 			boxPoint = ray.intersectBox(bbox);
-			forwardPoint = center.clone().add(direction.clone().multiplyScalar(radius));
+			forwardPoint = center.clone().add(rayDirection.clone().multiplyScalar(radius));
 		}
 		var reverseDisplacement = boxPoint.clone().sub(forwardPoint.clone());
 		basketball.addPosition(reverseDisplacement);

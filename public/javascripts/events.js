@@ -48,7 +48,6 @@ $(document).ready(function(){
 		var x = isNaN($("#x-position").val()) ? 0 : $("#x-position").val();
 		var y = isNaN($("#y-position").val()) ? 0 : $("#y-position").val();
 		var z = isNaN($("#z-position").val()) ? 0 : $("#z-position").val();
-		console.log(x);
 
 		$(document).trigger("setposition", [FEET(x), FEET(y), FEET(z)]);
 	});
