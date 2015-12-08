@@ -54,7 +54,8 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	// controls.center = new THREE.Vector3(388.62, 87.63, 27.432);
+	controls.center = new THREE.Vector3(350, 100, 0);
+
 	
 	// LIGHT
 	var light = new THREE.DirectionalLight(0xffffff);
