@@ -141,18 +141,6 @@ function Net(side){
 	this.changePosition = changePosition;
 	var getKnot = this.getKnot;
 
-	this.evalF = function() {
-		var netForce = new THREE.Vector3();
-
-		// Gravity
-		var gravityDirection = new THREE.Vector3(0, -1.0, 0);
-		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * MASS);
-		netForce.add(gravity);
-
-
-
-	}
-
 	function init(side){
 		_knots = [];
 		_lines = [];
