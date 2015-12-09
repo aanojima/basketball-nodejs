@@ -7,7 +7,7 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
-var step = 0.022; // PATRAMETER (~45 FPS) 0.022
+var step = 1/45; // PATRAMETER (~45 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 
 init();
@@ -303,6 +303,18 @@ function render()
 			rotationScale = 0.25 / basketball.getRadius();
 			basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 		}
+
+		var bRevVel = new THREE.Vector3(0,0,0);
+		for (var i in awayNet.getKnots()){
+			var knot = awayNet.getKnots()[i];
+			var result = knot.handleCollision(basketball, step);
+			if (result.intersection){
+				bRevVel.add(result["reverse-velocity"]);
+			}
+		}
+		awayNet.updateLines();
+		bRevVel.normalize().multiplyScalar(basketball.getVelocity().length() * 0.25);
+		basketball.addVelocity(bRevVel);
 
 		basketball.spin(step);
 		updateArrow(arrowHelper, basketball);
