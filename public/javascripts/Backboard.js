@@ -70,7 +70,7 @@ function Backboard(side){
 			side === "AWAY" ? bbox.min.x : bbox.max.x,
 			side === "AWAY" ? bbox.max.x : bbox.min.x,
 			bbox.min.y,
-			bbox.max.y,
+			bbox.max.y, 
 			side === "AWAY" ? bbox.min.z : bbox.max.z,
 			side === "AWAY" ? bbox.max.z : bbox.min.z
 		];
@@ -95,7 +95,7 @@ function Backboard(side){
 
 	this.getEdgePoint = function(faces, center){
 		// Point on the center of specified edge
-		var edgePoint = this.getPoint(faces);
+		var edgePoint = this.getPoint(faces); //WHAT IS THIS? never used....
 		// Use center to get point on edge
 		var points = this.getEdgeLineSegment(faces);
 		var origin = points[0];
