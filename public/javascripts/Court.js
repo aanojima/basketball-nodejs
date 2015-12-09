@@ -1,6 +1,6 @@
 function Court(){
 	
-	const ELASTICITY = 0.6;
+	const ELASTICITY = 0.7;
 	const FK_COEFFICIENT = 0.25;
 	
 	var _offset, _mesh;
@@ -57,10 +57,11 @@ function Court(){
 
 	function init(){
 		var texture = new THREE.ImageUtils.loadTexture('images/basketball-court.png');
-		var material = new THREE.MeshBasicMaterial({
+		var material = new THREE.MeshPhongMaterial({
 			map : texture,
 			color : 0xffffff,
-			side: THREE.DoubleSide
+			side: THREE.DoubleSide,
+			shininess: 30
 		});
 		var geometry = new THREE.PlaneBufferGeometry(FEET(94), FEET(50), 10, 10);
 		_mesh = new THREE.Mesh(geometry, material);

@@ -200,6 +200,7 @@ function Net(side){
 	init(side);
 }
 
+
 function Knot(x,y,z){
 
 	// TODO: Make knot another line with top and bottom
@@ -252,13 +253,13 @@ function Knot(x,y,z){
 
 	function init(x,y,z){
 		var geometry = new THREE.SphereGeometry(KNOT_RADIUS, 32, 32);
-		var material = new THREE.MeshLambertMaterial({
+		var material = new THREE.MeshBasicMaterial({
 			color: 0xffffff
 		});
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.position.set(x,y,z);
-		_mesh.castShadow = true;
-		_mesh.receiveShadow = true;
+		_mesh.castShadow = false;
+		_mesh.receiveShadow = false;
 
 		_state = [
 			_mesh.position,
@@ -302,7 +303,7 @@ function Line(knotA,knotB){
 		});
 
 		_mesh = new THREE.Line(geometry, material);
-		_mesh.castShadow = true;
+		_mesh.castShadow = false;
 		_mesh.receiveShadow = true;
 	}
 

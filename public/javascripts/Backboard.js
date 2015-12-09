@@ -423,23 +423,29 @@ function Backboard(side){
 		// TODO: Unique texture for each side
 		// Z+, Z-, Y+, Y-
 		var materials = [
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png'),
+				shininess: 15
 			}),
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-side.png'),
+				shininess: 15
 			}),
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png'),
+				shininess: 15
 			}),
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-top.png'),
+				shininess: 15
 			}),
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-front.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-front.png'),
+				shininess: 15
 			}),
-			new THREE.MeshLambertMaterial({
-				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-back.png')
+			new THREE.MeshPhongMaterial({
+				map : THREE.ImageUtils.loadTexture('images/basketball-backboard-back.png'),
+				shininess: 15
 			})
 		];
 		var material = new THREE.MeshFaceMaterial(materials);
@@ -452,7 +458,7 @@ function Backboard(side){
 			return;
 		}
 		_mesh = new THREE.Mesh(geometry, material);
-		_mesh.castShadow = true;
+		_mesh.castShadow = false;
 		_mesh.receiveShadow = true;
 		_mesh.position.y = GROUND_DISTANCE; // Attachment Height - 1 inch
 		_mesh.position.x = _sideSign * DISTANCE;

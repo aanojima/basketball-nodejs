@@ -7,7 +7,7 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
-var step = 0.022; // PATRAMETER (~45 FPS) 0.022
+var step = 1/60.0; // PATRAMETER (~45 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 
 init();
@@ -60,8 +60,23 @@ function init()
 	topLight1.position.set(0,FEET(50),0);
 	topLight1.castShadow = true;
 	topLight1.shadowDarkness = 0.5;
-	topLight1.inensity = 0.5;
+	topLight1.intensity = 0.0;
 	scene.add(topLight1);
+
+	var topLight2 = new THREE.DirectionalLight(0xffffff);
+	topLight2.position.set(FEET(40),FEET(50),0);
+	topLight2.castShadow = false;
+	topLight2.shadowDarkness = 0.5;
+	topLight2.intensity = 0.4;
+	scene.add(topLight2);
+
+	var topLight3 = new THREE.DirectionalLight(0xffffff);
+	topLight3.position.set(FEET(-40),FEET(50),0);
+	topLight3.castShadow = false;
+	topLight3.shadowDarkness = 0.5;
+	topLight3.intensity = 0.4;
+	scene.add(topLight3);
+
 
 	var light = new THREE.AmbientLight( 0x828282 ); // soft white light
 	scene.add( light );
@@ -89,10 +104,10 @@ function init()
 	scene.add(awayNet.getMesh());
 	
 	// SKYBOX
-	// var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
-	// var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
-	// var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
-	// scene.add(skyBox);
+	var skyBoxGeometry = new THREE.CubeGeometry( 10000, 10000, 10000 );
+	var skyBoxMaterial = new THREE.MeshBasicMaterial( { color: 0x9999ff, side: THREE.BackSide } );
+	var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
+	scene.add(skyBox);
 	
 	////////////////
 	// Basketball //
