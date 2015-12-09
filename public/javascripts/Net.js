@@ -5,10 +5,18 @@ function Net(side){
 	const HEIGHT = INCHES();
 	const TOP_LAYER_SPACING = INCHES(4);
 	const LAYER_SPACING = INCHES(1.5);
-	const KNOT_LAYERS = 8; // plus ones on top and ones on bottom
+	const KNOT_LAYERS = 6; // plus ones on top and ones on bottom
 	const KNOTS_PER_LAYER = 12;
 	const ANGLE_STEP = (2.0 * Math.PI / KNOTS_PER_LAYER);
 	const DISTANCE = FEET(42) - INCHES(4) - TOP_RADIUS; // Backboard Depth
+	
+	const KNOT_MASS = 0.002; // TODO
+	const LINE_MASS = 0.005; // TODO
+	
+	const KD = 0.115; // TODO
+	const KSST = 0.7;
+	const TOP_RST = 0.5*TOP_LAYER_SPACING;
+	const RST = 0.5*LAYER_SPACING;
 
 	// TODO: See Object3D Group (group.add)
 	var _knotMeshes, _lineMeshes, _group;
@@ -18,38 +26,123 @@ function Net(side){
 	}
 
 	this.getKnots = function(){
-		return _knotMeshes;
+		return _knots;
 	}
 
 	this.getLines = function(){
-		return _lineMeshes;
+		return _lines;
 	}
 
-	function getKnot(layer,index){
+	this.getKnot = function(layer,index){
 		// I is the Layer
 		// J is the Knot
-		return _knotMeshes[layer*KNOTS_PER_LAYER + index];
+		return _knots[layer*KNOTS_PER_LAYER + index];
+	}
+
+	this.addKnotPosition = function(i,a,b,c){
+		var knot = _knots[i];
+		knot.addPosition(a,b,c);
+	}
+
+	this.addKnotVelocity = function(i,a,b,c){
+		var knot = _knots[i];
+		knot.addVelocity(a,b,c);
 	}
 
 	function getLine(layer,index){
 		// I is the layer
 		// J is the knot
-		return _lineMeshes[layer*KNOTS_PER_LAYER + index];
+		return _lines[layer*KNOTS_PER_LAYER + index];
+	}
+
+	this.computeSpring = function(k, r, layer1, index1, layer2, index2){
+		var knotA = this.getKnot(layer1, index1);
+		var knotB = this.getKnot(layer2, index2);
+		var d = knotA.getPosition().sub(knotB.getPosition());
+		return d.clone().normalize().multiplyScalar(-1*k*(d.length() - r));
+	}
+
+	this.evalF = function(){
+		var F = {
+			'v' : [],
+			'a' : []
+		};
+		for (var i in _knots){
+
+			// i,j subscripts
+			var iLayer = Math.floor(i / KNOTS_PER_LAYER );
+			var jIndex = i % KNOTS_PER_LAYER;
+
+			// For Top "Fixed" Knots, Ignore
+			if (iLayer == 0){
+				F['v'].push(new THREE.Vector3());
+				F['a'].push(new THREE.Vector3());
+				continue;
+			}
+
+			// Other Knots
+			var knot = _knots[i];
+
+			// For Rest, Calculate Gravity, Drag, Spring
+			var x = knot.getPosition();
+			var v = knot.getVelocity();
+
+			F['v'].push(v); // position derivatives (velocity)
+
+			var netForce = new THREE.Vector3();
+
+			// Gravity
+			var gravityForce = (new THREE.Vector3(0,-1,0)).multiplyScalar(METERS(9.8) * KNOT_MASS);
+			netForce.add(gravityForce);
+
+			// Drag
+			var dragForce = v.clone().negate().multiplyScalar(KD)
+			netForce.add(dragForce);
+
+			// Spring Force
+			var springForce = new THREE.Vector3();
+
+			// TODO: Structural Spring
+			var jAdj = KNOTS_PER_LAYER + 1;
+			if ((iLayer % 2) == 0){
+				jAdj = KNOTS_PER_LAYER - 1;
+			}
+			var rst = iLayer - 1 == 0 ? TOP_RST : RST;
+			springForce.add(this.computeSpring(KSST, rst, iLayer, jIndex, iLayer - 1, jIndex));
+			springForce.add(this.computeSpring(KSST, rst, iLayer, jIndex, iLayer - 1, (jIndex + jAdj) % KNOTS_PER_LAYER ));
+			if (iLayer < KNOT_LAYERS){
+				// Not at Bottom
+				springForce.add(this.computeSpring(KSST, RST, iLayer, jIndex, iLayer + 1, jIndex));
+				springForce.add(this.computeSpring(KSST, RST, iLayer, jIndex, iLayer + 1, (jIndex + jAdj) % KNOTS_PER_LAYER ));
+			}
+
+			netForce.add(springForce);
+
+			F['a'].push(netForce.divideScalar(KNOT_MASS));
+		}
+		return F;
+	}
+
+	this.updateLines = function(){
+		_lines.forEach(function(line,i){
+			line.getMesh().geometry.verticesNeedUpdate = true;
+		});
 	}
 
 	function changePosition(dx,dy,dz){
-		for (var i in _knotMeshes){
-			var knot = _knotMeshes[i];
+		for (var i in _knots){
+			var knot = _knots[i].getMesh();
 			knot.position.x += dx;
 			knot.position.y += dy;
 			knot.position.z += dz;
 		}
 	}
 	this.changePosition = changePosition;
+	var getKnot = this.getKnot;
 
 	function init(side){
-		_knotMeshes = [];
-		_lineMeshes = [];
+		_knots = [];
+		_lines = [];
 		_group = new THREE.Object3D();
 
 		// TOP FIXED LAYER
@@ -58,13 +151,13 @@ function Net(side){
 			var x = TOP_RADIUS * Math.cos(angle);
 			var z = TOP_RADIUS * Math.sin(angle);
 			var knot = new Knot(x,0,z);
-			_knotMeshes.push(knot.getMesh());
+			_knots.push(knot);
 			_group.add(knot.getMesh());
 		}
 
 		// OTHER LAYERS
 		for (var j = 0; j < KNOT_LAYERS + 1; j++){
-			var y = -1*TOP_LAYER_SPACING - j * LAYER_SPACING;
+			var y = 1*TOP_LAYER_SPACING + j * LAYER_SPACING;
 			var startAngle = ((j + 1)  % 2) * 0.5 * ANGLE_STEP;
 			var radius = Math.exp(j / (-4 * KNOTS_PER_LAYER)) * BOTTOM_RADIUS; // TODO: Depends on some function
 			for (var i = 0; i < KNOTS_PER_LAYER; i++){
@@ -72,20 +165,21 @@ function Net(side){
 				var x = radius * Math.cos(angle);
 				var z = radius * Math.sin(angle);
 				var knot = new Knot(x,y,z);
-				_knotMeshes.push(knot.getMesh());
+				_knots.push(knot);
 				_group.add(knot.getMesh());
 				
 				// First Diagonal
+				// 0,0 <=> 0
 				var previousKnotA = getKnot(j,i);
-				var lineA = new Line(previousKnotA, knot.getMesh());
-				_lineMeshes.push(lineA.getMesh());
+				var lineA = new Line(previousKnotA, knot);
+				_lines.push(lineA);
 				_group.add(lineA.getMesh());
 
 				// Second Diagonal
 				var indexOffset = (j % 2 == 0) ? 1 : KNOTS_PER_LAYER - 1;
 				var previousKnotB = getKnot(j,(i+indexOffset) % KNOTS_PER_LAYER);
-				var lineB = new Line(previousKnotB, knot.getMesh());
-				_lineMeshes.push(lineB.getMesh());
+				var lineB = new Line(previousKnotB, knot);
+				_lines.push(lineB);
 				_group.add(lineB.getMesh());
 			}
 		}
@@ -111,10 +205,48 @@ function Knot(x,y,z){
 	// see https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTgLCQJeOoxHAPyAAEoFc12kLYaLipYL2tq0lVJR9LvDQD8kWMe8A
 	const KNOT_RADIUS = INCHES(0.01);
 
-	var _mesh;
+	var _mesh, _state;
 
 	this.getMesh = function(){
 		return _mesh;
+	}
+
+	this.getPosition = function(){
+		return _state[0].clone();
+	}
+
+	this.addPosition = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			// Vector
+			_mesh.position.x += a.x;
+			_mesh.position.y += a.y;
+			_mesh.position.z += a.z;
+		}
+		else if (a !== undefined && b !== undefined && c !== undefined){
+			// Values
+			_mesh.position.x += a;
+			_mesh.position.y += b;
+			_mesh.position.z += c;
+		}	
+	}
+
+	this.getVelocity = function(){
+		return _state[1].clone();
+	}
+
+	this.addVelocity = function(a,b,c){
+		if (a !== undefined && b === undefined && c === undefined){
+			// Vector
+			_state[1].x += a.x;
+			_state[1].y += a.y;
+			_state[1].z += a.z;
+		}
+		else if (a !== undefined && b !== undefined && c !== undefined){
+			// Values
+			_state[1].x += a;
+			_state[1].y += b;
+			_state[1].z += c;
+		}	
 	}
 
 	function init(x,y,z){
@@ -126,29 +258,46 @@ function Knot(x,y,z){
 		_mesh.position.set(x,y,z);
 		_mesh.castShadow = true;
 		_mesh.receiveShadow = true;
+
+		_state = [
+			_mesh.position,
+			new THREE.Vector3()
+		];
 	}
 
 	init(x,y,z);
 }
 
-function Line(meshA,meshB){
+function Line(knotA,knotB){
 	const SPRING_CONSTANT = 0.25; // TODO
 
-	var _mesh;
+	var _mesh, _knotA, _knotB;
 
 	this.getMesh = function(){
 		return _mesh;
 	}
 
-	function init(meshA,meshB){
+	this.getKnots = function(){
+		return [_knotA, _knotB];
+	}
+
+	this.update = function(){
+		_mesh.geometry.verticesNeedUpdate = true;
+	}
+
+	function init(knotA,knotB){
+		_knotA = knotA;
+		_knotB = knotB;
 		var geometry = new THREE.Geometry();
 		geometry.vertices.push(
-			meshA.position,
-			meshB.position
+			knotA.getMesh().position,
+			knotB.getMesh().position
 		);
 
-		var material = new THREE.MeshLambertMaterial({
+		var material = new THREE.LineBasicMaterial({
 			color : 0xffffff,
+			linewidth : INCHES(1),
+			side: THREE.DoubleSide
 		});
 
 		_mesh = new THREE.Line(geometry, material);
@@ -156,5 +305,5 @@ function Line(meshA,meshB){
 		_mesh.receiveShadow = true;
 	}
 
-	init(meshA, meshB);
+	init(knotA, knotB);
 }

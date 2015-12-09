@@ -65,7 +65,6 @@ function Rim(side){
 			}
 		}
 
-		console.log(t);
 		return t;
 
 		// // Quartic Equation Solution

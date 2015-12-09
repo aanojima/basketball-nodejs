@@ -185,25 +185,9 @@ function render()
 		controls.center = basketball.getPosition();
 	}
 
+
+
 	if (window.PLAY){
-		// Collision-Detection
-		var courtCollision = court.hasCollision(basketball);
-
-		// Court-Basketball Forces
-		if (courtCollision){
-			// Add a Normal Force
-			// var courtNormal = court.getNormalForce(basketball.getMass());
-			// basketball.addNormal("court", courtNormal);
-
-			// Add a Friction Force
-			// var courtFriction = court.getFrictionForce(courtNormal, basketball.getVelocity());
-			// basketball.addFriction("court", courtFriction);
-			
-		} else {
-			// basketball.removeNormal("court");
-			// basketball.removeFriction("court");
-		}
-
 		// Evaluate Derivatives
 		var F = basketball.evalF();
 		var velocity = F[0];
@@ -214,15 +198,40 @@ function render()
 		// Euler Step
 		var position = basketball.getPosition();
 		var velocity = basketball.getVelocity();
-
 		basketball.addPosition(dPosition);
 		basketball.addVelocity(dVelocity);
+
+		var awayNetF = awayNet.evalF();
+		for (var i in awayNet.getKnots()){
+			var velocity = awayNetF['v'][i];
+			var acceleration = awayNetF['a'][i];
+			var dPosition = velocity.clone().multiplyScalar(step);
+			var dVelocity = acceleration.clone().multiplyScalar(step);
+
+			// Euler Step
+			awayNet.addKnotPosition(i, dPosition);
+			awayNet.addKnotVelocity(i, dVelocity);
+			awayNet.updateLines();
+		}
+
+		var homeNetF = homeNet.evalF();
+		for (var i in homeNet.getKnots()){
+			var velocity = homeNetF['v'][i];
+			var acceleration = homeNetF['a'][i];
+			var dPosition = velocity.clone().multiplyScalar(step);
+			var dVelocity = acceleration.clone().multiplyScalar(step);
+
+			// Euler Step
+			homeNet.addKnotPosition(i, dPosition);
+			homeNet.addKnotVelocity(i, dVelocity);
+			homeNet.updateLines();
+		}
 
 		var awayHit = {};
 		var awayBackboardCollision = awayBackboard.hasCollision(basketball, awayHit);
 		var homeHit = {};
 		var homeBackboardCollision = homeBackboard.hasCollision(basketball, homeHit);
-		courtCollision = court.hasCollision(basketball);
+		var courtCollision = court.hasCollision(basketball);
 		if (courtCollision){
 			basketball.setCourtCollision(courtCollision);
 
@@ -296,7 +305,6 @@ function render()
 		}
 
 		basketball.spin(step);
-
 		updateArrow(arrowHelper, basketball);
 	}
 
