@@ -2,6 +2,7 @@ function Basketball(){
 
 	const MASS = 0.625;
 	const RADIUS = INCHES(4.75);
+
 	var _state, _mesh, _angularVelocity, _courtCollision, _normalHash, _frictionHash;
 
 	this.getMass = function(){
@@ -33,21 +34,24 @@ function Basketball(){
 			_state[0].y = b;
 			_state[0].z = c;
 		}
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.setY = function(Y){
 		_state[0].y = Y;
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.addPosition = function(a,b,c){
 		if (a !== undefined && b === undefined && c === undefined){
-			_state[0].add(a);	
+			_state[0].add(a);
 		}
 		else {
 			_state[0].x += a;
 			_state[0].y += b;
 			_state[0].z += c;
 		}
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 	}
 
 	this.getVelocity = function(){
@@ -84,6 +88,7 @@ function Basketball(){
 		if (newState && newState.length === 2){
 			// Valid State
 			_state[0] = newState[0].clone();
+			_mesh.position.set(newState[0].x, newState[0].y, newState[0].z);
 			_state[1] = newState[1].clone();
 		}
 	}
@@ -143,16 +148,18 @@ function Basketball(){
 
 	function init(){;
 		_state = [
-			new THREE.Vector3( FEET(0) + FEET(0), FEET(10), FEET(0)),
-			new THREE.Vector3(FEET(0), FEET(30), FEET(0))
+			new THREE.Vector3( FEET(30) + FEET(1.5), FEET(10), FEET(10)),
+			new THREE.Vector3(FEET(14.5), FEET(12.5), FEET(-13))
 		];
 
 		var geometry = new THREE.SphereGeometry(RADIUS, 32, 32);
-		var material = new THREE.MeshBasicMaterial({ 
+		var material = new THREE.MeshLambertMaterial({ 
 			map: new THREE.ImageUtils.loadTexture('images/basketball.jpg')
 		});
 		_mesh = new THREE.Mesh(geometry, material);
-		_mesh.position = _state[0];
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = false;
+		_mesh.position.set(_state[0].x, _state[0].y, _state[0].z);
 		_angularVelocity = (new THREE.Vector3(_state[1].x, 0, _state[1].z)).multiplyScalar(0.25 / RADIUS);
 		_normalHash = {};
 		_frictionHash = {};

@@ -62,8 +62,9 @@ function Court(){
 			color : 0xffffff,
 			side: THREE.DoubleSide
 		});
-		var geometry = new THREE.PlaneGeometry(FEET(94), FEET(50), 10, 10);
+		var geometry = new THREE.PlaneBufferGeometry(FEET(94), FEET(50), 10, 10);
 		_mesh = new THREE.Mesh(geometry, material);
+		_mesh.receiveShadow = true;
 		_mesh.rotation.x = Math.PI / 2;
 		_offset = _mesh.position.y;
 		

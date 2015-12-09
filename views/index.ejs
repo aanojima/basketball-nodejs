@@ -9,7 +9,8 @@
 <body>
 
 <script src="javascripts/jquery-1.9.1.js"></script>
-<script src="javascripts/Three.js"></script>
+<!-- <script src="javascripts/Three.js"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js"></script>
 <script src="javascripts/Detector.js"></script>
 <script src="javascripts/OrbitControls.js"></script>
 <script src="javascripts/KeyboardState.js"></script>
@@ -24,8 +25,40 @@
 
 </div>
 
-<div id="ThreeJS" style="position: absolute; left:0px; top:0px"></div>
+<div id="ThreeJS" style="position: absolute; left:0px; top:0px; bottom:150px"></div>
+<div id="control-menu">
+	<div class="control-title"><b>CONTROLS</b></div>
+	<div class="control-row">
+		<div class="control-item">
+			<div class="control-icon"><img id="play-button" src="images/play-button.jpg" /></div>
+			<div class="control-label" id="play-label">PLAY</div>
+		</div>
+		<div class="control-item">
+			<div class="control-icon"><img id="ball-icon" src="images/basketball-icon.png" /></div>
+			<div class="control-label" id="ball-label">BALL</div>
+		</div>
+		<div class="control-item">
+			<div class="control-label position-title">BALL POSITION</div>
+			<div class="control-label position-label">X: <span><input id="x-position" class="position-input float-input" size="10" /> ft</span></div>
+			<div class="control-label position-label">Y: <span><input id="y-position" class="position-input float-input" size="10" /> ft</span></div>
+			<div class="control-label position-label">Z: <span><input id="z-position" class="position-input float-input" size="10" /> ft</span></div>
+			<div class="control-label"><button id="set-position-button">SET</button></div>
+		</div>
+		<div class="control-item">
+			<div class="control-label">BALL VELOCITY</div>
+			<div class="control-label">X: <span><input type="range" min="-50" max="50" value="0" id="x-velocity" class="velocity-input float-input" step="0.1" /><input value="0" disabled size="1"/> ft</span></div>
+			<div class="control-label">Y: <span><input type="range" min="-50" max="50" value="0" id="y-velocity" class="velocity-input float-input" step="0.1" /><input value="0" disabled size="1"/> ft</span></div>
+			<div class="control-label">Z: <span><input type="range" min="-50" max="50" value="0" id="z-velocity" class="velocity-input float-input" step="0.1" /><input value="0" disabled size="1"/> ft</span></div>
+			<div class="control-label"><button id="set-velocity-button">SET</button></div>
+		</div>
+		<div class="control-item">
+			<div class="control-icon"><img id="reset-button" src="images/reset.png" /></div>
+			<div class="control-label" id="reset-label">RESET</div>
+		</div>
+	</div>
+</div>
+<script src="javascripts/events.js"></script>
 <script src="javascripts/main.js"></script>
-
+<!-- MIN WIDTH 955px -->
 </body>
 </html>

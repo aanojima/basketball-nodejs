@@ -15,3 +15,7 @@ function INCHES(inches){
 function FEET(feet){
 	return INCHES(12.0 * feet);
 }
+
+function PIXEL2FEET(pixel){
+	return pixel / (0.3 * 2.54 * 12);
+}

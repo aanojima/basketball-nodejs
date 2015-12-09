@@ -45,7 +45,20 @@ function Net(side){
 			knot.position.z += dz;
 		}
 	}
+
 	this.changePosition = changePosition;
+
+	this.evalF = function() {
+		var netForce = new THREE.Vector3();
+
+		// Gravity
+		var gravityDirection = new THREE.Vector3(0, -1.0, 0);
+		var gravity = gravityDirection.multiplyScalar(METERS(9.8) * MASS);
+		netForce.add(gravity);
+
+
+
+	}
 
 	function init(side){
 		_knotMeshes = [];
@@ -119,11 +132,13 @@ function Knot(x,y,z){
 
 	function init(x,y,z){
 		var geometry = new THREE.SphereGeometry(KNOT_RADIUS, 32, 32);
-		var material = new THREE.MeshBasicMaterial({
+		var material = new THREE.MeshLambertMaterial({
 			color: 0xffffff
 		});
 		_mesh = new THREE.Mesh(geometry, material);
 		_mesh.position.set(x,y,z);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = true;
 	}
 
 	init(x,y,z);
@@ -145,12 +160,14 @@ function Line(meshA,meshB){
 			meshB.position
 		);
 
-		var material = new THREE.LineBasicMaterial({
+		var material = new THREE.MeshLambertMaterial({
 			color : 0xffffff,
-			linewidth : INCHES(1)
+			linewidth : 10
 		});
 
 		_mesh = new THREE.Line(geometry, material);
+		_mesh.castShadow = true;
+		_mesh.receiveShadow = true;
 	}
 
 	init(meshA, meshB);
