@@ -55,25 +55,38 @@ function Rim(side){
 		var D1 = 2*A*B - E;
 		var E1 = A*A - D;
 
-		// Quartic Equation Solution
-		var p1 = 2*C1*C1*C1 - 9*B1*C1*D1 + 27*A1*D1*D1 + 27*B1*B1*E1 - 72*A1*C1*E1;
-		var p2 = p1 + Math.sqrt(-4*Math.pow(C1*C1 - 3*B1*D1 + 12*A1*E1, 3) + p1*p1);
-		var p3 = ((C1*C1 - 3*B1*D1 + 12*A1*E1) / (3*A1*Math.cbrt(p2 / 2))) + ((Math.cbrt(p2 / 2)) / (3*A1));
-		var p4 = Math.sqrt((B1*B1)/(4*A1*A1) - (2*C1)/(3*A1) + p3);
-		var p5 = ((B1*B1) / (2*A1*A1)) - ((4*C1) / (3*A1)) - p3;
-		var p6 = ((-1*(B1*B1*B1) / (A1*A1*A1)) + ((4*B1*C1) / (A1*A1)) - ((8*D1) / A1)) / (4*p4);
-		var term1 = -1*(B1 / (4*A1));
-		var term2 = p4 / 2;
-		var term3 = Math.sqrt(p5 + p6) / 2;
+		var roots = calculateQuarticRoots(B1, C1, D1, E1);
 
-		// All Roots (solutions) of the Quartic Equation
-		var t0 = term1 - term2 - term3;
-		var t1 = term1 - term2 + term3;
-		var t2 = term1 + term2 - term3;
-		var t3 = term1 + term2 + term3;
+		var t = 0;
+		for (var i in roots){
+			var root = roots[i];
+			if (root.imag == 0 && root.real > t){
+				t = root.real;
+			}
+		}
 
-		// Return largest positive t value (first collision)
-		return Math.max(t0, t1, t2, t3);
+		return t;
+
+		// // Quartic Equation Solution
+		// var p1 = 2*C1*C1*C1 - 9*B1*C1*D1 + 27*A1*D1*D1 + 27*B1*B1*E1 - 72*A1*C1*E1;
+		// var p2 = p1 + Math.sqrt(-4*Math.pow(C1*C1 - 3*B1*D1 + 12*A1*E1, 3) + p1*p1);
+		// var p3 = ((C1*C1 - 3*B1*D1 + 12*A1*E1) / (3*A1*Math.cbrt(p2 / 2))) + ((Math.cbrt(p2 / 2)) / (3*A1));
+		// var p4 = Math.sqrt((B1*B1)/(4*A1*A1) - (2*C1)/(3*A1) + p3);
+		// var p5 = ((B1*B1) / (2*A1*A1)) - ((4*C1) / (3*A1)) - p3;
+		// var p6 = ((-1*(B1*B1*B1) / (A1*A1*A1)) + ((4*B1*C1) / (A1*A1)) - ((8*D1) / A1)) / (4*p4);
+		// var term1 = -1*(B1 / (4*A1));
+		// var term2 = p4 / 2;
+		// var term3 = Math.sqrt(p5 + p6) / 2;
+
+		// // All Roots (solutions) of the Quartic Equation
+		// var t0 = term1 - term2 - term3;
+		// var t1 = term1 - term2 + term3;
+		// var t2 = term1 + term2 - term3;
+		// var t3 = term1 + term2 + term3;
+
+		// // Return largest positive t value (first collision)
+		// console.log(t0, t1, t2, t3);
+		// return Math.max(t0, t1, t2, t3);
 	}
 
 	function getTorusCenter(){

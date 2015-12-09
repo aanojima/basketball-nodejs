@@ -7,13 +7,11 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
-const MAX_STEP = 1 / 30;
-var step = 1 / 40; // PATRAMETER (30 FPS) 0.022
+var step = 0.022; // PATRAMETER (~45 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
-var timestamp = 0;
 
 init();
-animate(timestamp);
+animate();
 
 function reset()
 {
@@ -34,7 +32,7 @@ function init()
 	var VIEW_ANGLE = 45, ASPECT = SCREEN_WIDTH / SCREEN_HEIGHT, NEAR = 0.1, FAR = 20000;
 	camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
 	scene.add(camera);
-	camera.position.set(FEET(30),FEET(30),FEET(0));
+	camera.position.set(FEET(0),FEET(10),FEET(0));
 	camera.lookAt(scene.position);
 	
 	// RENDERER
@@ -55,7 +53,7 @@ function init()
 	
 	// CONTROLS
 	controls = new THREE.OrbitControls( camera, renderer.domElement );
-	controls.center = new THREE.Vector3(FEET(41), FEET(10), FEET(0));
+	controls.center = new THREE.Vector3(FEET(0), FEET(0), FEET(0));
 	
 	// LIGHT
 	var topLight1 = new THREE.DirectionalLight(0xffffff);
@@ -81,7 +79,7 @@ function init()
 	// Rim
 	homeRim = new Rim("HOME");
 	scene.add(homeRim.getMesh());
-	awayRim = new Rim("AWAY");
+	awayRim = new Rim("AWAY", scene);
 	scene.add(awayRim.getMesh());
 
 	// Net
@@ -96,12 +94,13 @@ function init()
 	// var skyBox = new THREE.Mesh( skyBoxGeometry, skyBoxMaterial );
 	// scene.add(skyBox);
 	
-	////////////
-	// CUSTOM //
-	////////////
+	////////////////
+	// Basketball //
+	////////////////
 	basketball = new Basketball();
 	scene.add(basketball.getMesh());
 
+	// Velocity Display Arrow
 	var velocity = basketball.getVelocity();
 	var dir = velocity.clone().normalize();
 	var length = velocity.length() / 10;
@@ -110,19 +109,20 @@ function init()
 	arrowHelper = new THREE.ArrowHelper(dir, origin, length, hex);
 	scene.add(arrowHelper);
 
+	// Set State Controls
 	$("#x-position").val(PIXEL2FEET(origin.x));
 	$("#y-position").val(PIXEL2FEET(origin.y));
 	$("#z-position").val(PIXEL2FEET(origin.z));
-
 	$("#x-velocity").val(PIXEL2FEET(velocity.x)).next().val(PIXEL2FEET(velocity.x));
 	$("#y-velocity").val(PIXEL2FEET(velocity.y)).next().val(PIXEL2FEET(velocity.y));
 	$("#z-velocity").val(PIXEL2FEET(velocity.z)).next().val(PIXEL2FEET(velocity.z));
 
+	// Event Listeners
 	$(document).on("setposition", function(event, x, y, z){
 		basketball.setPosition(x, y, z);
 		updateArrow(arrowHelper, basketball);
+		controls.center = basketball.getPosition();
 	});
-
 	$(document).on("setvelocity", function(event, x, y, z){
 		basketball.setVelocity(x, y, z);
 		rotationScale = 0.25 / basketball.getRadius();
@@ -130,21 +130,17 @@ function init()
 		basketball.setAngularVelocity(rotationScale * finalVelocity.x, 0, rotationScale * finalVelocity.z);
 		updateArrow(arrowHelper, basketball);
 	});
-
 	$(document).on("reset", function(event){
 		basketball.setPosition(0,0,0);
 		basketball.setVelocity(0,0,0);
 		$("#x-position").val(0);
 		$("#y-position").val(0);
 		$("#z-position").val(0);
-
 		$("#x-velocity").val(0).next().val(0);
 		$("#y-velocity").val(0).next().val(0);
 		$("#z-velocity").val(0).next().val(0);
-
 		updateArrow(arrowHelper, basketball);
 	});
-
 	$(document).on("ballfocus", function(event){
 		controls.center = basketball.getPosition();
 	});
@@ -161,10 +157,8 @@ function updateArrow(arrowHelper, basketball){
 	arrowHelper.position.set(bPos.x, bPos.y, bPos.z);
 }
 
-function animate(time) 
+function animate() 
 {
-	// step = Math.min((time - timestamp || step) / 1000, MAX_STEP);
-	// timestamp = time;
     requestAnimationFrame( animate );
 	render();	
 	update();
@@ -186,25 +180,14 @@ function render()
 	if (camera.position.y < 1){
 		camera.position.y = 1
 	}
+
+	if ($("#follow-ball").is(":checked")){
+		controls.center = basketball.getPosition();
+	}
+
+
+
 	if (window.PLAY){
-		// Collision-Detection
-		var courtCollision = court.hasCollision(basketball);
-
-		// Court-Basketball Forces
-		if (courtCollision){
-			// Add a Normal Force
-			// var courtNormal = court.getNormalForce(basketball.getMass());
-			// basketball.addNormal("court", courtNormal);
-
-			// Add a Friction Force
-			// var courtFriction = court.getFrictionForce(courtNormal, basketball.getVelocity());
-			// basketball.addFriction("court", courtFriction);
-			
-		} else {
-			// basketball.removeNormal("court");
-			// basketball.removeFriction("court");
-		}
-
 		// Evaluate Derivatives
 		var F = basketball.evalF();
 		var velocity = F[0];
@@ -215,15 +198,40 @@ function render()
 		// Euler Step
 		var position = basketball.getPosition();
 		var velocity = basketball.getVelocity();
-
 		basketball.addPosition(dPosition);
 		basketball.addVelocity(dVelocity);
+
+		var awayNetF = awayNet.evalF();
+		for (var i in awayNet.getKnots()){
+			var velocity = awayNetF['v'][i];
+			var acceleration = awayNetF['a'][i];
+			var dPosition = velocity.clone().multiplyScalar(step);
+			var dVelocity = acceleration.clone().multiplyScalar(step);
+
+			// Euler Step
+			awayNet.addKnotPosition(i, dPosition);
+			awayNet.addKnotVelocity(i, dVelocity);
+			awayNet.updateLines();
+		}
+
+		var homeNetF = homeNet.evalF();
+		for (var i in homeNet.getKnots()){
+			var velocity = homeNetF['v'][i];
+			var acceleration = homeNetF['a'][i];
+			var dPosition = velocity.clone().multiplyScalar(step);
+			var dVelocity = acceleration.clone().multiplyScalar(step);
+
+			// Euler Step
+			homeNet.addKnotPosition(i, dPosition);
+			homeNet.addKnotVelocity(i, dVelocity);
+			homeNet.updateLines();
+		}
 
 		var awayHit = {};
 		var awayBackboardCollision = awayBackboard.hasCollision(basketball, awayHit);
 		var homeHit = {};
 		var homeBackboardCollision = homeBackboard.hasCollision(basketball, homeHit);
-		courtCollision = court.hasCollision(basketball);
+		var courtCollision = court.hasCollision(basketball);
 		if (courtCollision){
 			basketball.setCourtCollision(courtCollision);
 
@@ -297,7 +305,6 @@ function render()
 		}
 
 		basketball.spin(step);
-
 		updateArrow(arrowHelper, basketball);
 	}
 
