@@ -148,7 +148,7 @@ function Basketball(){
 
 	function init(){;
 		_state = [
-			new THREE.Vector3( FEET(41), FEET(10), FEET(0)),
+			new THREE.Vector3( FEET(31.5), FEET(10), FEET(10)),
 			new THREE.Vector3(FEET(14.5), FEET(12.5), FEET(-13))
 		];
 

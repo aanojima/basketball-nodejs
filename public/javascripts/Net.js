@@ -1,3 +1,5 @@
+const KNOTS_PER_LAYER = 12;
+
 function Net(side){
 
 	const TOP_RADIUS = INCHES(9);
@@ -6,7 +8,6 @@ function Net(side){
 	const TOP_LAYER_SPACING = INCHES(4);
 	const LAYER_SPACING = INCHES(1.5);
 	const KNOT_LAYERS = 6; // plus ones on top and ones on bottom
-	const KNOTS_PER_LAYER = 12;
 	const ANGLE_STEP = (2.0 * Math.PI / KNOTS_PER_LAYER);
 	const DISTANCE = FEET(42) - INCHES(4) - TOP_RADIUS; // Backboard Depth
 	
@@ -53,6 +54,10 @@ function Net(side){
 		// I is the layer
 		// J is the knot
 		return _lines[layer*KNOTS_PER_LAYER + index];
+	}
+
+	this.handleCollision = function(basketball){
+		// TODO
 	}
 
 	this.computeSpring = function(k, r, layer1, index1, layer2, index2){
@@ -118,6 +123,7 @@ function Net(side){
 
 			netForce.add(springForce);
 
+			knot.setForce(netForce);
 			F['a'].push(netForce.divideScalar(KNOT_MASS));
 		}
 		return F;
@@ -151,21 +157,21 @@ function Net(side){
 			var angle = i * ANGLE_STEP;
 			var x = TOP_RADIUS * Math.cos(angle);
 			var z = TOP_RADIUS * Math.sin(angle);
-			var knot = new Knot(x,0,z);
+			var knot = new Knot(x,0,z,true);
 			_knots.push(knot);
 			_group.add(knot.getMesh());
 		}
 
 		// OTHER LAYERS
 		for (var j = 0; j < KNOT_LAYERS + 1; j++){
-			var y = 1*TOP_LAYER_SPACING + j * LAYER_SPACING;
+			var y = -1*TOP_LAYER_SPACING - j * LAYER_SPACING;
 			var startAngle = ((j + 1)  % 2) * 0.5 * ANGLE_STEP;
 			var radius = Math.exp(j / (-4 * KNOTS_PER_LAYER)) * BOTTOM_RADIUS; // TODO: Depends on some function
 			for (var i = 0; i < KNOTS_PER_LAYER; i++){
 				var angle = startAngle + i * ANGLE_STEP;
 				var x = radius * Math.cos(angle);
 				var z = radius * Math.sin(angle);
-				var knot = new Knot(x,y,z);
+				var knot = new Knot(x,y,z,false);
 				_knots.push(knot);
 				_group.add(knot.getMesh());
 				
@@ -200,14 +206,13 @@ function Net(side){
 	init(side);
 }
 
-
-function Knot(x,y,z){
+function Knot(x,y,z,fixed){
 
 	// TODO: Make knot another line with top and bottom
 	// see https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcTgLCQJeOoxHAPyAAEoFc12kLYaLipYL2tq0lVJR9LvDQD8kWMe8A
-	const KNOT_RADIUS = INCHES(0.01);
+	const KNOT_RADIUS = INCHES(0.1);
 
-	var _mesh, _state;
+	var _mesh, _state, _force, _fixed;
 
 	this.getMesh = function(){
 		return _mesh;
@@ -251,7 +256,46 @@ function Knot(x,y,z){
 		}	
 	}
 
-	function init(x,y,z){
+	this.getForce = function(){
+		return _force.clone();
+	}
+
+	this.setForce = function(force){
+		_force = force;
+	}
+
+	this.handleCollision = function(basketball, step){
+		var bRadius = basketball.getRadius();
+		var kRadius = KNOT_RADIUS;
+		var bPos = basketball.getPosition();
+		var kPos = this.getPosition();
+		var bMass = basketball.getMass();
+		var bVel = basketball.getVelocity()
+		var bDir = bVel.clone().normalize();
+		var bSpeed = bVel.clone().length();
+		var intersection = bPos.clone().sub(kPos.clone()).length() <= bRadius + kRadius;
+		if (intersection && !_fixed){
+			// Project knot to surface of basketball
+			var vec = kPos.clone().sub(bPos.clone());
+			var dir = vec.clone().normalize();
+			var dist = (bRadius + kRadius) - vec.length();
+			var maxOffset = 0.5 * kRadius; // TODO
+			var ratio = 1 - dir.clone().dot(bDir.clone()); // TODO
+			var projectVec = dir.clone().multiplyScalar(dist + ratio * maxOffset);
+			this.addPosition(projectVec);
+
+			// Set Basketball Velocity a little lower (in opposite direction)
+			var relForce = this.getForce().length();
+			// var scale = 0.001; // TODO
+			var bRevVel = dir.clone().negate().multiplyScalar((relForce / (bMass * step)));
+			// basketball.addVelocity(bRevVel);
+			return { "intersection" : intersection, "reverse-velocity" : bRevVel };
+		}
+		return { "intersection" : intersection };
+	}
+
+	function init(x,y,z,fixed){
+		_fixed = fixed;
 		var geometry = new THREE.SphereGeometry(KNOT_RADIUS, 32, 32);
 		var material = new THREE.MeshBasicMaterial({
 			color: 0xffffff
@@ -265,9 +309,10 @@ function Knot(x,y,z){
 			_mesh.position,
 			new THREE.Vector3()
 		];
+		_force = new THREE.Vector3();
 	}
 
-	init(x,y,z);
+	init(x,y,z,fixed);
 }
 
 function Line(knotA,knotB){
