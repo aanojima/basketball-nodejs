@@ -7,20 +7,12 @@ var keyboard = new KeyboardState();
 
 // custom global variables
 var basketball, court, homeBackboard, awayBackboard, homeRim, awayRim, homeNet, awayNet, arrowHelper;
-<<<<<<< HEAD
-var step = 1/60.0; // PATRAMETER (~45 FPS) 0.022
-=======
-var step = 1/45; // PATRAMETER (~45 FPS) 0.022
->>>>>>> c18a6dbd024bc3e3c6e54c49af5007ca940c09a8
+var step = 1/60.0; // PATRAMETER (60 FPS) 0.022
+// var step = 1/45; // PATRAMETER (45 FPS) 0.022
 var BOUNCE_THRESHOLD = METERS(0.75); // PARAMETER
 
 init();
 animate();
-
-function reset()
-{
-	// Get Current Camera Position
-}
 
 // FUNCTIONS
 function init() 
